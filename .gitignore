@@ -1,5 +1,10 @@
 .DS_Store
 .vs_code
+
+# data is too heavy to upload, 72 Gb
 /data
 /template
+
+# python environment
+/env
 
