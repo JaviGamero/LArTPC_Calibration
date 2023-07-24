@@ -7,7 +7,7 @@ void macro_ArrivalTime(){
 	char dir[256];
 	char skip[256] = "/Users/javigamero/MyMac/DS_Master/TFM/data/sample_particles_v2/.DS_Store";
 
-  	getcwd(dir, 256); 
+  	getcwd(dir, 256); // you must be in the main folder to execute this script
   	strcat(dir, "/data/sample_particles_v2"); // you must be in main folder of the project
 
   	// PMT IDs in the TPC with X<0
