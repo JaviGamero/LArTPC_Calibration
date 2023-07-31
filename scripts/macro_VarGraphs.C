@@ -122,35 +122,35 @@ void macro_VarGraphs()
       			// =============================================================
 			    // Spatial Coordinates of the deposited Energy
 			    // =============================================================
-		    	// for(int j=0; j<stepX->size(); j++) 
-			    // {
-				// 	cout << "PDG: " << PDGcode -> at(j) << endl;
-				// 	if(PDGcode->at(j) != -11) continue; // check we have a Michel electron after decay
+		    	for(int j=0; j<stepX->size(); j++) 
+			    {
+					cout << "PDG: " << PDGcode -> at(j) << endl;
+					if(PDGcode->at(j) != -11) continue; // check we have a Michel electron after decay
 
-				// 	// dE_electron = dE->at(j); // (MeV) 
-				// 	if(!(dE->at(j) > 0)) continue; // we need the electron in the active volume
+					// dE_electron = dE->at(j); // (MeV) 
+					if(!(dE->at(j) > 0)) continue; // we need the electron in the active volume
 
-				// 	cout<<"PDG:"<<PDGcode->at(j)<<"  dE:" << dE->at(j) <<endl;	
-				// 	cout<<"Event: "<<event<<endl;
+					cout<<"PDG:"<<PDGcode->at(j)<<"  dE:" << dE->at(j) <<endl;	
+					cout<<"Event: "<<event<<endl;
 					
-			    // 	dim = stepX->at(j).size();
-			    // 	Double_t X[dim], Y[dim], Z[dim], T[dim];
+			    	dim = stepX->at(j).size();
+			    	Double_t X[dim], Y[dim], Z[dim], T[dim];
 
-			    // 	for (int k=0; k<stepX->at(j).size(); k++)
-			    // 	{
-			    // 		X[k] = stepX->at(j).at(k);
-			    // 		Y[k] = stepY->at(j).at(k);
-			    // 		Z[k] = stepZ->at(j).at(k);
-			    // 		// T[k] = stepT->at(j).at(k);
+			    	for (int k=0; k<stepX->at(j).size(); k++)
+			    	{
+			    		X[k] = stepX->at(j).at(k);
+			    		Y[k] = stepY->at(j).at(k);
+			    		Z[k] = stepZ->at(j).at(k);
+			    		// T[k] = stepT->at(j).at(k);
 
-			    // 		// X[k] = energydepX->at(j).at(k);
-			    // 		// Y[k] = energydepY->at(j).at(k);
-			    // 		// Z[k] = energydepZ->at(j).at(k);
-			    // 	}
+			    		// X[k] = energydepX->at(j).at(k);
+			    		// Y[k] = energydepY->at(j).at(k);
+			    		// Z[k] = energydepZ->at(j).at(k);
+			    	}
 			    	
-			    // 	// plotSpatialdE_2D(X, Y, Z, dim);
-			    // 	plotSpatialdE_3D(X, Y, Z, dim);
-      			// }
+			    	// plotSpatialdE_2D(X, Y, Z, dim);
+			    	plotSpatialdE_3D(X, Y, Z, dim);
+      			}
 
       			// =============================================================
 			    // N Scintillation Photons deposited 
@@ -169,13 +169,13 @@ void macro_VarGraphs()
 			    // Start time of the waveforms
 			    // =============================================================
 		    	// dim = StampTime -> size();
-		    	dim = StampTimeDeco -> size();
-		    	Double_t t[dim];
-		    	for (int j=0; j<dim; j++)
-		    		// t[j] = StampTime -> at(j);
-		    		t[j] = StampTimeDeco -> at(j);
+		    	// dim = StampTimeDeco -> size();
+		    	// Double_t t[dim];
+		    	// for (int j=0; j<dim; j++)
+		    	// 	t[j] = StampTime -> at(j);
+		    	// 	// t[j] = StampTimeDeco -> at(j);
 
-		    	PlotHist(t, dim, "StampTime", "Start Time (#mus)", "Entries");
+		    	// PlotHist(t, dim, "StampTime", "Start Time (#mus)", "Entries");
 
 
 		    } // loop over entries in one tree

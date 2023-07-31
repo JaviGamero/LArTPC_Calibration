@@ -189,6 +189,7 @@ void macro_TFM_Javier(){
 					cout<<fstepX->at(j).at(l)<<endl;
 
 				cout<<fprocess->at(j)<<"  pdg: "<<fPDGcode->at(j)<<"  dE:"<<dE_electron<<" X_start_electron:"<<X_start_electron<<endl;	
+				cout << "MotherID: " << fmotherID -> at(j) << endl;
       }
       
       if(!(dE_electron >0)) continue;// we need the electron in the active volume
