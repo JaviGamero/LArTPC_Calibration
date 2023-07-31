@@ -1,5 +1,5 @@
 .DS_Store
-.vs_code
+.vscode
 
 # data is too heavy to upload, 72 Gb
 /data
