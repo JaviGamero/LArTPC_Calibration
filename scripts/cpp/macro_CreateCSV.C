@@ -15,17 +15,15 @@ Obviously, this way we will reduce the quantity of data in a huge quantity.
 #include <TFile.h>
 #include <TTree.h>
 #include <TCanvas.h>
-#include <TGraph.h>
 #include <TH1F.h>
-#include <TH3F.h>
-#include <TPolyLine3D.h>
 
 
 // Namespaces
 using namespace std::filesystem;
 using namespace std;
 
-void writeCSV1D(int v[], int dim, string filename, string headers);
+void writeCSV1D(int v[], int dim, int i, string foldername, string headers);
+
 
 void macro_CreateCSV()
 {
@@ -47,13 +45,37 @@ void macro_CreateCSV()
     vector<int> selected_pmtid; // array to select vectors
     vector<int>::iterator it;
 
-    char dir[256];
+    // Preparing Directory with data preprocessed
+    char data_preproc[256];
+    getcwd(data_preproc, 256);
+    strcat(data_preproc, "/data_preproc/");
+
+    if (exists(data_preproc) && is_directory(data_preproc))
+    {
+        if (remove_all(data_preproc))
+        {
+            cout << "Data preprocessed directory removed" << endl;
+            if (create_directory(data_preproc))
+                cout << "Data preprocessed directory recreated" << endl;
+        }
+            
+    }        
+    else 
+    {
+        cout << "Data preprocessed directory does not exist" << endl;
+        if (create_directory(data_preproc))
+            cout << "Data preprocessed directory recreated" << endl;
+    }
+
+    // raw data
+    char data_raw[256];
 	char skip[256] = "/Users/javigamero/MyMac/DS_Master/TFM/data/sample_particles_v2/.DS_Store";
 
-  	getcwd(dir, 256); 
-  	strcat(dir, "/data/sample_particles_v2"); // you must be in main folder of the project
+  	getcwd(data_raw, 256); 
+  	strcat(data_raw, "/data/sample_particles_v2"); // you must be in main folder of the project
 
-  	for (const auto &folder: directory_iterator(dir)) // iterate above folders
+
+  	for (const auto &folder: directory_iterator(data_raw)) // iterate above folders
   	{
   		if (folder.path() == skip) continue; // skip .DS_Store/ folder (only macOS)
 	  	for (const auto &treePath: directory_iterator(folder)) // above trees in folder
@@ -94,10 +116,10 @@ void macro_CreateCSV()
     		tree->SetBranchAddress("eventID",&event);
 
 
-
             // =================================================================
 		    // MAIN LOOP
 		    // =================================================================
+            int ntree = 0; // to iterate above folders
             for (int i=0; i<tree->GetEntries(); i++)
             {
                 tree->GetEntry(i);
@@ -134,19 +156,19 @@ void macro_CreateCSV()
 				 	    signalVUV->Fill(SimPhotonsLiteVUV->at(k).at(j));	
                 }
 
-                // signalVUV -> Print("all"); // print info of all bins
-                // cout << signalVUV -> GetNbinsX() << endl; // number of bins 
-                // cout << signalVUV -> GetBinContent(100) << endl; // to obtain frequency of bin n
-
                 // finishes in Nbins+1 due to the fact that if there are N bins, 
                 // there will be N+1 points
                 int dim = signalVUV->GetNbinsX();
                 int timeSerie[dim];
+                int x[dim];
                 for (int j=0; j<=dim+1; j++)
                     timeSerie[j] = signalVUV -> GetBinContent(j);
-                
-                cout << path;
+                    
 
+                string foldername = string(data_preproc) + "/" + "LightSignal/" + "tree_" + to_string(ntree) + "/";
+                string header = "NPhotonsVUV";
+                cout << foldername;
+                // writeCSV1D(timeSerie, timeSerie, dim, i, foldername, header);
                 
 
                 //Plotting true averaged signal
@@ -162,22 +184,32 @@ void macro_CreateCSV()
                 can1->WaitPrimitive();
             
             } // end of main loop 
+            ntree++;
+
         }// end of loop above .roots in a folder
     } // end of loop above folders
 } // end of main 
 
 
-void writeCSV1D(int v[], int dim, string filename, string headers) 
+void writeCSV1D(int v[], int dim, int i, string foldername, string headers)
 {
+    // first, check if the folder exists. If it does not, create it.
+    if (!exists(foldername))
+        create_directory(foldername);
+
     ofstream file; 
-    // char *cHeaders = new char[headers.length()+1]; strcpy(cHeaders, headers.c_str());
+    string filename = foldername + "event_" + to_string(i) + ".csv";
     file.open(filename);
+
+    // write in a message min x, max x and binwidth to be able to recreate x_axis
     
     // Headers
     file << headers;
 
     for (int i=0; i<dim; i++)
-        file << v[i] << "\n";
+        file << to_string(v[i]) + "\n";
+
+    file.close();
 
     return ;
 }
