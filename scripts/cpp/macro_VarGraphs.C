@@ -167,27 +167,27 @@ void macro_VarGraphs()
       			// =============================================================
 			    // N Scintillation Photons deposited 
 			    // =============================================================
-			    // dim = NPhotonsPerPD_VUV -> size();
-			    // Double_t photons[dim];
-			    // for (int j=0; j<dim; j++)
-			    // 	// photons[j] = NPhotonsPerPD_VUV->at(j);
-			    // 	photons[j] = NPhotonsPerPD_VIS->at(j);
+			    dim = NPhotonsPerPD_VUV -> size();
+			    Double_t photons[dim];
+			    for (int j=0; j<dim; j++)
+			    	// photons[j] = NPhotonsPerPD_VUV->at(j);
+			    	photons[j] = NPhotonsPerPD_VIS->at(j);
 
-      			// // NPhotonsHist_PerPD(photons, dim);
-      			// PlotHist(photons, dim, "Number of photons histogram", 
-      			// 		 "#Photons", "Entries");
+      			// NPhotonsHist_PerPD(photons, dim);
+      			PlotHist(photons, dim, "Number of photons histogram", 
+      					 "#Photons", "Entries");
 
       			// =============================================================
 			    // Start time of the waveforms
 			    // =============================================================
-		    	// dim = StampTime -> size();
-		    	// dim = StampTimeDeco -> size();
-		    	// Double_t t[dim];
-		    	// for (int j=0; j<dim; j++)
-		    	// 	t[j] = StampTime -> at(j);
-		    	// 	// t[j] = StampTimeDeco -> at(j);
+		    	dim = StampTime -> size();
+		    	dim = StampTimeDeco -> size();
+		    	Double_t t[dim];
+		    	for (int j=0; j<dim; j++)
+		    		t[j] = StampTime -> at(j);
+		    		// t[j] = StampTimeDeco -> at(j);
 
-		    	// PlotHist(t, dim, "StampTime", "Start Time (#mus)", "Entries");
+		    	PlotHist(t, dim, "StampTime", "Start Time (#mus)", "Entries");
 
 
 		    } // loop over entries in one tree

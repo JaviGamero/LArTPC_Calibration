@@ -1,3 +1,22 @@
+// Libraries
+#include <string>
+#include <iostream>
+#include <unistd.h>
+#include <filesystem>
+
+#include <TFile.h>
+#include <TTree.h>
+#include <TCanvas.h>
+#include <TGraph.h>
+#include <TH1F.h>
+#include <TH3F.h>
+#include <TPolyLine3D.h>
+
+
+// Namespaces
+using namespace std::filesystem;
+using namespace std;
+
 void macro_TFM_Javier(){
   const int Nfiles = 1;
 
@@ -88,73 +107,73 @@ void macro_TFM_Javier(){
     // Signal Decomposition
     // =========================================================================
 
-    TTree* tree2 = (TTree*)fh->Get("opanatree/OpAnaPerTrackTree");
-    unsigned int run2; tree2->SetBranchAddress("runID",&run2);
-    unsigned int subrun2; tree2->SetBranchAddress("subrunID",&subrun2);
-    unsigned int event2; tree2->SetBranchAddress("eventID",&event2);
-    int trackID2; tree2->SetBranchAddress("TrackID",&trackID2);
-    vector<vector<double> >* fSimPhotonsVIS=new vector<vector<double> >();
-    vector<vector<double> >* fSimPhotonsVUV=new vector<vector<double> >();
-    tree2->SetBranchAddress("SimPhotonsVIS",&fSimPhotonsVIS);
-    tree2->SetBranchAddress("SimPhotonsVUV",&fSimPhotonsVUV);
+    // TTree* tree2 = (TTree*)fh->Get("opanatree/OpAnaPerTrackTree");
+    // unsigned int run2; tree2->SetBranchAddress("runID",&run2);
+    // unsigned int subrun2; tree2->SetBranchAddress("subrunID",&subrun2);
+    // unsigned int event2; tree2->SetBranchAddress("eventID",&event2);
+    // int trackID2; tree2->SetBranchAddress("TrackID",&trackID2);
+    // vector<vector<double> >* fSimPhotonsVIS=new vector<vector<double> >();
+    // vector<vector<double> >* fSimPhotonsVUV=new vector<vector<double> >();
+    // tree2->SetBranchAddress("SimPhotonsVIS",&fSimPhotonsVIS);
+    // tree2->SetBranchAddress("SimPhotonsVUV",&fSimPhotonsVUV);
 
     
-    TH1D* hVUV_mu = new TH1D("","",1000,0,10000);
-    TH1D* hVUV_e = new TH1D("","",1000,0,10000);
-    TH1D* hVUV_total = new TH1D("","",1000,0,10000);
-    int pre_ID = 1;
+    // TH1D* hVUV_mu = new TH1D("","",1000,0,10000);
+    // TH1D* hVUV_e = new TH1D("","",1000,0,10000);
+    // TH1D* hVUV_total = new TH1D("","",1000,0,10000);
+    // int pre_ID = 1;
    
-    for(int i=0; i<tree2->GetEntries(); i++) 
-    {
-      tree2->GetEntry(i);
-      if(event2 != pre_ID)
-			{
-			  hVUV_total->Add(hVUV_mu);
-			  hVUV_total->Add(hVUV_e); 
-			  TCanvas *can2 = new TCanvas("can2", "can2",200,200,800,500);
-			  can2->cd(1);
-			  hVUV_total->SetTitle(0);
-			  hVUV_total->GetXaxis()->SetTitle("time [ns]");
-			  hVUV_total->GetYaxis()->SetTitle("entries");
-			  hVUV_total->SetLineColor(1);
-			  hVUV_total->Draw();
-			  hVUV_mu->SetLineColor(4);
-			  hVUV_mu->Draw("same");
-			  hVUV_e->SetLineColor(2);
-			  hVUV_e->Draw("same");
+    // for(int i=0; i<tree2->GetEntries(); i++) 
+    // {
+    //   tree2->GetEntry(i);
+    //   if(event2 != pre_ID)
+		// 	{
+		// 	  hVUV_total->Add(hVUV_mu);
+		// 	  hVUV_total->Add(hVUV_e); 
+		// 	  TCanvas *can2 = new TCanvas("can2", "can2",200,200,800,500);
+		// 	  can2->cd(1);
+		// 	  hVUV_total->SetTitle(0);
+		// 	  hVUV_total->GetXaxis()->SetTitle("time [ns]");
+		// 	  hVUV_total->GetYaxis()->SetTitle("entries");
+		// 	  hVUV_total->SetLineColor(1);
+		// 	  hVUV_total->Draw();
+		// 	  hVUV_mu->SetLineColor(4);
+		// 	  hVUV_mu->Draw("same");
+		// 	  hVUV_e->SetLineColor(2);
+		// 	  hVUV_e->Draw("same");
 			  
-			  can2->Update();
-			  can2->Modified();
-			  can2->WaitPrimitive();
+		// 	  can2->Update();
+		// 	  can2->Modified();
+		// 	  can2->WaitPrimitive();
 			  
-			  hVUV_mu->Reset();	  
-			  hVUV_e->Reset();
-			  hVUV_total->Reset();
-			}
+		// 	  hVUV_mu->Reset();	  
+		// 	  hVUV_e->Reset();
+		// 	  hVUV_total->Reset();
+		// 	}
   
-  		cout<< "it: " << i << ", run:" << run2 << ", subrun: " << subrun2<< ", event: " << event2 << ", trackID:" << trackID2 <<endl;
+  	// 	cout<< "it: " << i << ", run:" << run2 << ", subrun: " << subrun2<< ", event: " << event2 << ", trackID:" << trackID2 <<endl;
       
-	  	for(int k=0; k<fSimPhotonsVUV->size(); k++) 
-	  	{
-				//selecting the PMTs in the array we want to use
-				// cout << "Hey1" << endl;
-				it2 = find (selected_pmtid_2.begin(), selected_pmtid_2.end(), k);
+	  // 	for(int k=0; k<fSimPhotonsVUV->size(); k++) 
+	  // 	{
+		// 		//selecting the PMTs in the array we want to use
+		// 		// cout << "Hey1" << endl;
+		// 		it2 = find (selected_pmtid_2.begin(), selected_pmtid_2.end(), k);
 				
-				if (it2 == selected_pmtid.end()) continue;
-				// cout << "Hey2" << endl;
+		// 		if (it2 == selected_pmtid.end()) continue;
+		// 		// cout << "Hey2" << endl;
 		
-				if(trackID2 == 1)
-		  		for(int j=0; j<fSimPhotonsVUV->at(k).size(); j++) 
-		  			hVUV_mu->Fill(fSimPhotonsVUV->at(k).at(j));
+		// 		if(trackID2 == 1)
+		//   		for(int j=0; j<fSimPhotonsVUV->at(k).size(); j++) 
+		//   			hVUV_mu->Fill(fSimPhotonsVUV->at(k).at(j)); 
 		  		
 				
-				else
-		  		for(int j=0; j<fSimPhotonsVUV->at(k).size(); j++)
-		    		hVUV_e->Fill(fSimPhotonsVUV->at(k).at(j));	
-	    }
+		// 		else
+		//   		for(int j=0; j<fSimPhotonsVUV->at(k).size(); j++)
+		//     		hVUV_e->Fill(fSimPhotonsVUV->at(k).at(j));	
+	  //   }
 	      
-	    pre_ID = event2; 
-    }
+	  //   pre_ID = event2; 
+    // }
     
     // =========================================================================
     // TRUE SIGNAL VUV
@@ -214,6 +233,8 @@ void macro_TFM_Javier(){
 				for(int j=0; j<fSimPhotonsLiteVUV->at(k).size(); j++)
 				 	hVUV__total->Fill(fSimPhotonsLiteVUV->at(k).at(j));	
       }
+
+
       //Plotting true averaged signal
       TCanvas *can1 = new TCanvas("can1", "Arrival time histogram",200,200,600,500);
       can1->cd(1);
