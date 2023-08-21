@@ -20,9 +20,12 @@ Obviously, this way we will reduce the quantity of data in a huge quantity.
 
 // Namespaces
 using namespace std::filesystem;
+using namespace std::chrono;
 using namespace std;
 
-void writeCSV1D(int v[], int dim, int i, string foldername, string headers);
+void writeCSV(int *v[], int narrays, int dim, int event, int ntree,
+              string foldername, string headers);
+void AddToCSV_T(int v[], int dim, ofstream &file);
 
 
 void macro_CreateCSV()
@@ -50,22 +53,9 @@ void macro_CreateCSV()
     getcwd(data_preproc, 256);
     strcat(data_preproc, "/data_preproc/");
 
-    if (exists(data_preproc) && is_directory(data_preproc))
-    {
-        if (remove_all(data_preproc))
-        {
-            cout << "Data preprocessed directory removed" << endl;
-            if (create_directory(data_preproc))
-                cout << "Data preprocessed directory recreated" << endl;
-        }
-            
-    }        
-    else 
-    {
-        cout << "Data preprocessed directory does not exist" << endl;
-        if (create_directory(data_preproc))
-            cout << "Data preprocessed directory recreated" << endl;
-    }
+    if (!exists(data_preproc))
+        if (create_directories(data_preproc))
+            cout << "Data preprocessed directory created" << endl;
 
     // raw data
     char data_raw[256];
@@ -74,6 +64,13 @@ void macro_CreateCSV()
   	getcwd(data_raw, 256); 
   	strcat(data_raw, "/data/sample_particles_v2"); // you must be in main folder of the project
 
+    auto start = high_resolution_clock::now();
+
+    int ntree = 0; 
+
+    strcat(data_preproc, "LightSignal_VUVºº     .csv");
+    ofstream file; // file where all temporary series will be written
+    file.open(data_preproc);
 
   	for (const auto &folder: directory_iterator(data_raw)) // iterate above folders
   	{
@@ -119,13 +116,13 @@ void macro_CreateCSV()
             // =================================================================
 		    // MAIN LOOP
 		    // =================================================================
-            int ntree = 0; // to iterate above folders
             for (int i=0; i<tree->GetEntries(); i++)
             {
                 tree->GetEntry(i);
                 double dE_e = 0.;
                 double x_e = 0.;
                 TH1D *signalVUV = new TH1D("","",1000,0,10000);
+                TH1D *signalVIS = new TH1D("","",1000,0,10000);
                 
                 for (int j=0; j<stepX->size(); j++)
                 {
@@ -153,63 +150,116 @@ void macro_CreateCSV()
                     if (it == selected_pmtid.end()) continue; // .end() points outside, dismiss it
                     
                     for(int j=0; j<SimPhotonsLiteVUV->at(k).size(); j++)
-				 	    signalVUV->Fill(SimPhotonsLiteVUV->at(k).at(j));	
+				 	    signalVUV->Fill(SimPhotonsLiteVUV->at(k).at(j));
+
+                    // for(int j=0; j<SimPhotonsLiteVIS->at(k).size(); j++)
+				 	//     signalVIS->Fill(SimPhotonsLiteVIS->at(k).at(j));	
                 }
 
-                // finishes in Nbins+1 due to the fact that if there are N bins, 
-                // there will be N+1 points
                 int dim = signalVUV->GetNbinsX();
-                int timeSerie[dim];
+                TAxis *X = signalVUV->GetXaxis();
+
+                int timeSerieVUV[dim];
+                // int timeSerieVIS[dim];
                 int x[dim];
-                for (int j=0; j<=dim+1; j++)
-                    timeSerie[j] = signalVUV -> GetBinContent(j);
-                    
-
-                string foldername = string(data_preproc) + "/" + "LightSignal/" + "tree_" + to_string(ntree) + "/";
-                string header = "NPhotonsVUV";
-                cout << foldername;
-                // writeCSV1D(timeSerie, timeSerie, dim, i, foldername, header);
                 
+                for (int j=0; j<=dim+1; j++) // finishes in Nbins+1, if there are N bins, there will be N+1 points
+                {
+                    timeSerieVUV[j] = signalVUV -> GetBinContent(j);
+                    // timeSerieVIS[j] = signalVIS -> GetBinContent(j);                    
+                }   
 
-                //Plotting true averaged signal
-                TCanvas *can1 = new TCanvas("can1", "Arrival time histogram",200,200,600,500);
-                can1->cd(1);
-                signalVUV->SetTitle(0);
-                signalVUV->GetXaxis()->SetTitle("time [ns]");
-                signalVUV->GetYaxis()->SetTitle("entries");
-                signalVUV->SetLineColor(1);
-                signalVUV->Draw();   
-                can1->Update();
-                can1->Modified();
-                can1->WaitPrimitive();
+                for (int j=0; j<dim; j++)
+                    x[j] = X->GetBinCenter(j+1); // Bin indexes start at 1
+
+                // to write one csv for each serie
+                /* 
+                string foldername = string(data_preproc) + "LightSignal/";
+                string header = "NPhotonsVUV,NPhotonsVIS,x\n";
+                int *arr[] = {timeSerieVUV,timeSerieVIS,x};
+                writeCSV(arr, 3, dim, i, ntree, foldername, header);
+                */
+
+                // to write all series in one csv
+                AddToCSV_T(timeSerieVUV, dim, file);
+                
             
             } // end of main loop 
             ntree++;
+            cout << "Tree: " << ntree << endl;
+
+            delete tree; 
+            delete fh;
+            
 
         }// end of loop above .roots in a folder
     } // end of loop above folders
+
+    file.close();
+
+    auto stop = high_resolution_clock::now();
+    cout << "Duration of the script: " << duration_cast<seconds>(stop-start).count() <<
+         "(s)"<< endl;
 } // end of main 
 
 
-void writeCSV1D(int v[], int dim, int i, string foldername, string headers)
+void writeCSV(int *v[], int narrays, int dim, int event, int ntree,
+              string foldername, string headers)
 {
+    /* This function creates one csv with the arrays pointed in v.
+    
+    Variables: 
+    - v: array of pointers, each element points to the desired array 
+    - narrays: length of v, i.e. number of arrays that will be written 
+    - dim: dimension of the arrays that will be written, it must be equal for all
+    - ntree: index to indicate a number to write it in the csv name
+    - foldername: folder where the csv will be saved
+    - headers: header of the csv, separated by ","
+    */
+
     // first, check if the folder exists. If it does not, create it.
     if (!exists(foldername))
-        create_directory(foldername);
+        create_directories(foldername);
 
     ofstream file; 
-    string filename = foldername + "event_" + to_string(i) + ".csv";
+    string filename = foldername + "tree_" + to_string(ntree) + "_event_" + to_string(event) + ".csv";
     file.open(filename);
-
-    // write in a message min x, max x and binwidth to be able to recreate x_axis
     
     // Headers
     file << headers;
 
-    for (int i=0; i<dim; i++)
-        file << to_string(v[i]) + "\n";
+    // v is a an array of pointers to arrays
+    for (int j=0; j<dim; j++)
+    {    
+        for (int i=0; i<narrays-1; i++)      
+        {  
+            // cout << i << " " << j;
+            file << to_string(v[i][j]) + ",";
+        }
+        // cout << endl;
+        file << to_string(v[narrays-1][j]) << "\n";
+    }
 
     file.close();
 
     return ;
+}
+
+void AddToCSV_T(int v[], int dim, ofstream &file)
+{
+    /* This function adds an array to a csv as a line. Hence the csv will have
+    "dim" columns. 
+
+    Variables: 
+    - v: array to write. ONLY ONE
+    - dim: dimension of the array, also the final number of columns in the csv
+    - file: ofstream file, it MUST BE OPENED OUTSIDE the function
+    */
+    for (int i=0; i<dim-1; i++) 
+        file << to_string(v[i]) + ",";
+
+    file << to_string(v[dim-1]) + "\n";
+
+    return;
+
 }
