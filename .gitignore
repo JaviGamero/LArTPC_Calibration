@@ -5,8 +5,9 @@
 /data
 /template
 
-# jupyter notebooks checkpoints 
+# python, jupyter notebooks checkpoints 
 .ipynb_checkpoints
+__pycache__
 
 # python environment
 /env
