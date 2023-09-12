@@ -194,6 +194,9 @@ void macro_DigDec(){
 
 					cout<<"PMT:  "<<fOpChDigi->at(k)<<endl;
 					TGraph *g1=new TGraph(dim,&x_raw[0],&y_raw[0]);
+					
+					// cout << x_raw << endl << endl; 
+					cout << x_raw[0] << endl << endl; 
 		
 					const int dim2 = x_deco.size();
 					if(!(dim2>0)) continue;

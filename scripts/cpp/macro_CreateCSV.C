@@ -140,8 +140,6 @@ void macro_CreateCSV()
                 tree->GetEntry(i);
                 double dE_e = 0.;
                 double x_e = 0.;
-                // TH1D *signalVUV = new TH1D("","",1000,0,10000);
-                TH1D *signalVIS = new TH1D("","",1000,0,10000);
                 
                 for (int j=0; j<stepX->size(); j++)
                 {
@@ -166,6 +164,9 @@ void macro_CreateCSV()
                 // =============================================================
 		        // IDEAL SIGNAL (VUV, VIS)
 		        // =============================================================
+                // TH1D *signalVUV = new TH1D("","",1000,0,10000);
+                // TH1D *signalVIS = new TH1D("","",1000,0,10000);
+
                 // obtain data from realistic PMTs
                 // for (int k=0; k<SimPhotonsLiteVUV->size(); k++)
                 // {
@@ -211,62 +212,83 @@ void macro_CreateCSV()
 
 
                 // =============================================================
-		        // DIGI AND DECO
+		        // DIGITALISED SIGNAL
 		        // =============================================================
-                // ADC --> Apparent Diffusion Coefficient
-	    		// OpChDigi --> associated Photon-Detector ID
-	      		// loop over the different PMTs
-                for(int k=0; k<fOpChDigi->size(); k++) // for every photon detector
-		      	{
-					double max_digi=-1;
-					double max_deco=-1;
+
+                // for(int k=0; k<fOpChDigi->size(); k++) // for every photon detector
+		      	// {
+				// 	double max_digi=-1;
 					
-					//selecting the PMTs in the array we want to use
+				// 	//selecting the PMTs in the array we want to use
+				// 	it = find (selected_pmtid.begin(), selected_pmtid.end(), fOpChDigi->at(k));
+				// 	if (it == selected_pmtid.end()) continue;
+					
+					// // This loop is for DIGITISED signal
+					// x_raw.clear(); y_raw.clear();    
+					// for(int j=0; j<fSignalsDigi->at(k).size(); j++)
+					// {
+			  		// 	double rawADC = fSignalsDigi->at(k).at(j);
+			  		// 	rawADC-=fBaseline;
+
+			  		// 	if(max_digi < -rawADC) max_digi = -rawADC; // to limit the plot
+			  
+			  		// 	double t = fSamplingTime*j+fStampTime->at(k)*1000-shiftStamp;
+			  		// 	if(t>-1000 && t<11000)
+		  			// 	{
+		    		// 		x_raw.push_back(t);
+		    		// 		y_raw.push_back(-rawADC);
+		  			// 	}	  
+					// }
+
+                    // const int dim = y_raw.size();
+                    // if(!(dim>0)) continue;
+
+                    // int y[dim];
+                    // for (int j=0; j<dim; j++)
+                    //     y[j] = y_raw[j];
+
+                    // string idx = to_string(ntree) + "_" + to_string(event);
+                    // AddToCSV_T(y, dim, idx, file); 	
+                // }
+
+
+                // =============================================================
+		        // DECONVOLVED SIGNAL
+		        // =============================================================
+
+                for(int k=0; k<fOpChDeco->size(); k++) // for every photon detector
+		      	{
+                    double max_deco=-1;
+
+                    //selecting the PMTs in the array we want to use
 					it = find (selected_pmtid.begin(), selected_pmtid.end(), fOpChDigi->at(k));
 					if (it == selected_pmtid.end()) continue;
-					
-					//This loop is for DIGITISED signal
-					x_raw.clear(); y_raw.clear();    
-					for(int j=0; j<fSignalsDigi->at(k).size(); j++)
+
+                    // This loop is for DECONVOLVED/RECONSTRUCTED signal
+					x_deco.clear(); y_deco.clear();    				
+					for(int j=0; j<fSignalsDeco->at(k).size(); j++)
 					{
-			  			double rawADC = fSignalsDigi->at(k).at(j);
-			  			rawADC-=fBaseline;
-
-			  			if(max_digi < -rawADC) max_digi = -rawADC; // to limit the plot
-			  
-			  			double t = fSamplingTime*j+fStampTime->at(k)*1000-shiftStamp;
-			  			if(t>-1000 && t<11000)
+		  				double decoADC = fSignalsDeco->at(k).at(j)/500.; 
+		  				double t = fSamplingTime*j+fStampTimeDeco->at(k)*1000-shiftStamp; 
+		  
+		  				if(max_deco < decoADC) max_deco = decoADC; // to limit the plot
+		  
+		  				if(t>-1000 && t<11000)
 		  				{
-		    				x_raw.push_back(t);
-		    				y_raw.push_back(-rawADC);
-		  				}	  
-					}
+		    				x_deco.push_back(t);
+		    				y_deco.push_back(decoADC);
+		  				}	    
+					}	  
 
-                    const int dim = y_raw.size();
+                    const int dim = y_deco.size();
                     if(!(dim>0)) continue;
 
                     int y[dim];
                     for (int j=0; j<dim; j++)
-                        y[j] = y_raw[j];
+                        y[j] = y_deco[j];
 
                     string idx = to_string(ntree) + "_" + to_string(event);
-                    AddToCSV_T(y, dim, idx, file);
-			
-					///This loop is for DECONVOLVED/RECONSTRUCTED signal
-					// x_deco.clear(); y_deco.clear();    				
-					// for(int j=0; j<fSignalsDeco->at(k).size(); j++)
-					// {
-		  			// 	double decoADC = fSignalsDeco->at(k).at(j)/500.; 
-		  			// 	double t = fSamplingTime*j+fStampTimeDeco->at(k)*1000-shiftStamp; 
-		  
-		  			// 	if(max_deco < decoADC) max_deco = decoADC; // to limit the plot
-		  
-		  			// 	if(t>-1000 && t<11000)
-		  			// 	{
-		    		// 		x_deco.push_back(t);
-		    		// 		y_deco.push_back(decoADC);
-		  			// 	}	    
-					// }	 		
+                    AddToCSV_T(y, dim, idx, file); 
 	        
                 }
             
