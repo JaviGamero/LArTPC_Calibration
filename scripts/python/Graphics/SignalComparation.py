@@ -83,7 +83,9 @@ for folder in os.listdir(ROOT):
                 if dE_e < 0.0001: continue
                 
                 etl._calculateIdPMTs(startX_e)                
-                LightSignal = etl.getLightSignal(branches["SimPhotonsLiteVUV"][entry])
+                LightSignalVUV = etl.getLightSignal(branches["SimPhotonsLiteVUV"][entry])
+                LightSignalVIS = etl.getLightSignal(branches["SimPhotonsLiteVIS"][entry])
+                LightSignal = LightSignalVUV + LightSignalVIS # ideal signal is the sum up
                     
                 ################################################################
                 # ADC SIGNALS

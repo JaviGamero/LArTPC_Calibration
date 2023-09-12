@@ -1,5 +1,6 @@
 .DS_Store
 .vscode
+DigitalisedSignal.csv
 
 # data is too heavy to upload, 72 Gb
 /data

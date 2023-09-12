@@ -25,7 +25,7 @@ using namespace std;
 
 void writeCSV(int *v[], int narrays, int dim, int event, int ntree,
               string foldername, string headers);
-void AddToCSV_T(int v[], int dim, ofstream &file);
+void AddToCSV_T(int v[], int dim, string idx, ofstream &file);
 
 
 void macro_CreateCSV()
@@ -47,6 +47,9 @@ void macro_CreateCSV()
 
     vector<int> selected_pmtid; // array to select vectors
     vector<int>::iterator it;
+    const double shiftStamp = 135.;//ns
+  	const double fSamplingTime = 2.;//ns
+  	const int fBaseline=8000;//ADC
 
     // Preparing Directory with data preprocessed
     char data_preproc[256];
@@ -68,7 +71,7 @@ void macro_CreateCSV()
 
     int ntree = 0; 
 
-    strcat(data_preproc, "LightSignal_VUVºº     .csv");
+    strcat(data_preproc, "??.csv");
     ofstream file; // file where all temporary series will be written
     file.open(data_preproc);
 
@@ -90,17 +93,7 @@ void macro_CreateCSV()
 			
 			// =================================================================
 		    // Reading Variables 
-		    // =================================================================
-            vector<vector<double>> *SimPhotonsLiteVUV = new vector<vector<double>>;
-            vector<vector<double>> *SimPhotonsLiteVIS = new vector<vector<double>>;
-            tree -> SetBranchAddress("SimPhotonsLiteVUV", &SimPhotonsLiteVUV);
-            tree -> SetBranchAddress("SimPhotonsLiteVIS", &SimPhotonsLiteVIS);
-
-            vector<vector<double>> *stepX=new vector<vector<double>>;
-            vector<double> *dE = new vector<double>(); 
-			tree->SetBranchAddress("stepX",&stepX);
-            tree->SetBranchAddress("dE", &dE);
-            
+		    // =================================================================            
             vector<int> *trackID=new vector<int>; 
     		vector<int> *motherID=new vector<int>; 
     		vector<int> *PDGcode=new vector<int>; 
@@ -112,6 +105,32 @@ void macro_CreateCSV()
     		tree->SetBranchAddress("process",&process);
     		tree->SetBranchAddress("eventID",&event);
 
+            // particles info variables
+            vector<vector<double>> *stepX=new vector<vector<double>>;
+            vector<double> *dE = new vector<double>(); 
+			tree->SetBranchAddress("stepX",&stepX);
+            tree->SetBranchAddress("dE", &dE);
+
+            // ideal variables
+            vector<vector<double>> *SimPhotonsLiteVUV = new vector<vector<double>>;
+            vector<vector<double>> *SimPhotonsLiteVIS = new vector<vector<double>>;
+            tree -> SetBranchAddress("SimPhotonsLiteVUV", &SimPhotonsLiteVUV);
+            tree -> SetBranchAddress("SimPhotonsLiteVIS", &SimPhotonsLiteVIS);
+
+            // digitalised variables
+            vector<vector<double> >* fSignalsDigi=new vector<vector<double> >();
+		    tree->SetBranchAddress("SignalsDigi",&fSignalsDigi);
+		    vector<double> * fStampTime=new vector<double>; tree->SetBranchAddress("StampTime", &fStampTime);
+		    vector<int> * fOpChDigi=new vector<int>; tree->SetBranchAddress("OpChDigi",&fOpChDigi);
+		    vector<double> x_raw, y_raw;
+
+            // Deconvolutioned signal variables
+		    vector<vector<double> >* fSignalsDeco=new vector<vector<double> >();
+		    tree->SetBranchAddress("SignalsDeco",&fSignalsDeco);
+		    vector<double> * fStampTimeDeco=new vector<double>; tree->SetBranchAddress("StampTimeDeco",&fStampTimeDeco);
+		    vector<int> * fOpChDeco=new vector<int>; tree->SetBranchAddress("OpChDeco",&fOpChDeco);
+		    vector<double> x_deco, y_deco;
+
 
             // =================================================================
 		    // MAIN LOOP
@@ -121,7 +140,7 @@ void macro_CreateCSV()
                 tree->GetEntry(i);
                 double dE_e = 0.;
                 double x_e = 0.;
-                TH1D *signalVUV = new TH1D("","",1000,0,10000);
+                // TH1D *signalVUV = new TH1D("","",1000,0,10000);
                 TH1D *signalVIS = new TH1D("","",1000,0,10000);
                 
                 for (int j=0; j<stepX->size(); j++)
@@ -143,34 +162,40 @@ void macro_CreateCSV()
                 else 
                     selected_pmtid.assign(realisticPMT_IDs_TPC1, realisticPMT_IDs_TPC1 + 60);
 
+
+                // =============================================================
+		        // IDEAL SIGNAL (VUV, VIS)
+		        // =============================================================
                 // obtain data from realistic PMTs
-                for (int k=0; k<SimPhotonsLiteVUV->size(); k++)
-                {
-                    it = find(selected_pmtid.begin(), selected_pmtid.end(), k);
-                    if (it == selected_pmtid.end()) continue; // .end() points outside, dismiss it
+                // for (int k=0; k<SimPhotonsLiteVUV->size(); k++)
+                // {
+                //     it = find(selected_pmtid.begin(), selected_pmtid.end(), k);
+                //     if (it == selected_pmtid.end()) continue; // .end() points outside, dismiss it
                     
-                    for(int j=0; j<SimPhotonsLiteVUV->at(k).size(); j++)
-				 	    signalVUV->Fill(SimPhotonsLiteVUV->at(k).at(j));
+                //     // for(int j=0; j<SimPhotonsLiteVUV->at(k).size(); j++)
+				//  	//     signalVUV->Fill(SimPhotonsLiteVUV->at(k).at(j));
 
-                    // for(int j=0; j<SimPhotonsLiteVIS->at(k).size(); j++)
-				 	//     signalVIS->Fill(SimPhotonsLiteVIS->at(k).at(j));	
-                }
+                //     for(int j=0; j<SimPhotonsLiteVIS->at(k).size(); j++)
+				//  	    signalVIS->Fill(SimPhotonsLiteVIS->at(k).at(j));	
+                // }
 
-                int dim = signalVUV->GetNbinsX();
-                TAxis *X = signalVUV->GetXaxis();
+                // int dim = signalVIS->GetNbinsX();
+                // TAxis *X = signalVIS->GetXaxis();
 
-                int timeSerieVUV[dim];
+                // int timeSerieVUV[dim];
                 // int timeSerieVIS[dim];
-                int x[dim];
+                // int idealTimeSerie[dim];
+                // int x[dim];
                 
-                for (int j=0; j<=dim+1; j++) // finishes in Nbins+1, if there are N bins, there will be N+1 points
-                {
-                    timeSerieVUV[j] = signalVUV -> GetBinContent(j);
-                    // timeSerieVIS[j] = signalVIS -> GetBinContent(j);                    
-                }   
+                // for (int j=0; j<=dim+1; j++) // finishes in Nbins+1, if there are N bins, there will be N+1 points
+                // {
+                //     // timeSerieVUV[j] = signalVUV -> GetBinContent(j);
+                //     timeSerieVIS[j] = signalVIS -> GetBinContent(j);
+                //     // idealTimeSerie[j] = timeSerieVIS[j] + timeSerieVUV[j];
+                // }   
 
-                for (int j=0; j<dim; j++)
-                    x[j] = X->GetBinCenter(j+1); // Bin indexes start at 1
+                // for (int j=0; j<dim; j++)
+                //     x[j] = X->GetBinCenter(j+1); // Bin indexes start at 1
 
                 // to write one csv for each serie
                 /* 
@@ -181,8 +206,69 @@ void macro_CreateCSV()
                 */
 
                 // to write all series in one csv
-                AddToCSV_T(timeSerieVUV, dim, file);
-                
+                // string idx = to_string(ntree) + "_" + to_string(event);
+                // AddToCSV_T(timeSerieVIS, dim, idx, file);
+
+
+                // =============================================================
+		        // DIGI AND DECO
+		        // =============================================================
+                // ADC --> Apparent Diffusion Coefficient
+	    		// OpChDigi --> associated Photon-Detector ID
+	      		// loop over the different PMTs
+                for(int k=0; k<fOpChDigi->size(); k++) // for every photon detector
+		      	{
+					double max_digi=-1;
+					double max_deco=-1;
+					
+					//selecting the PMTs in the array we want to use
+					it = find (selected_pmtid.begin(), selected_pmtid.end(), fOpChDigi->at(k));
+					if (it == selected_pmtid.end()) continue;
+					
+					//This loop is for DIGITISED signal
+					x_raw.clear(); y_raw.clear();    
+					for(int j=0; j<fSignalsDigi->at(k).size(); j++)
+					{
+			  			double rawADC = fSignalsDigi->at(k).at(j);
+			  			rawADC-=fBaseline;
+
+			  			if(max_digi < -rawADC) max_digi = -rawADC; // to limit the plot
+			  
+			  			double t = fSamplingTime*j+fStampTime->at(k)*1000-shiftStamp;
+			  			if(t>-1000 && t<11000)
+		  				{
+		    				x_raw.push_back(t);
+		    				y_raw.push_back(-rawADC);
+		  				}	  
+					}
+
+                    const int dim = y_raw.size();
+                    if(!(dim>0)) continue;
+
+                    int y[dim];
+                    for (int j=0; j<dim; j++)
+                        y[j] = y_raw[j];
+
+                    string idx = to_string(ntree) + "_" + to_string(event);
+                    AddToCSV_T(y, dim, idx, file);
+			
+					///This loop is for DECONVOLVED/RECONSTRUCTED signal
+					// x_deco.clear(); y_deco.clear();    				
+					// for(int j=0; j<fSignalsDeco->at(k).size(); j++)
+					// {
+		  			// 	double decoADC = fSignalsDeco->at(k).at(j)/500.; 
+		  			// 	double t = fSamplingTime*j+fStampTimeDeco->at(k)*1000-shiftStamp; 
+		  
+		  			// 	if(max_deco < decoADC) max_deco = decoADC; // to limit the plot
+		  
+		  			// 	if(t>-1000 && t<11000)
+		  			// 	{
+		    		// 		x_deco.push_back(t);
+		    		// 		y_deco.push_back(decoADC);
+		  			// 	}	    
+					// }	 		
+	        
+                }
             
             } // end of main loop 
             ntree++;
@@ -245,7 +331,7 @@ void writeCSV(int *v[], int narrays, int dim, int event, int ntree,
     return ;
 }
 
-void AddToCSV_T(int v[], int dim, ofstream &file)
+void AddToCSV_T(int v[], int dim, string idx, ofstream &file)
 {
     /* This function adds an array to a csv as a line. Hence the csv will have
     "dim" columns. 
@@ -255,8 +341,10 @@ void AddToCSV_T(int v[], int dim, ofstream &file)
     - dim: dimension of the array, also the final number of columns in the csv
     - file: ofstream file, it MUST BE OPENED OUTSIDE the function
     */
+
+    file << idx + ";";
     for (int i=0; i<dim-1; i++) 
-        file << to_string(v[i]) + ",";
+        file << to_string(v[i]) + ";";
 
     file << to_string(v[dim-1]) + "\n";
 
