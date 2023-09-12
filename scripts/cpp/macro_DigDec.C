@@ -1,4 +1,21 @@
-// #include <string>
+// Libraries
+#include <string>
+#include <iostream>
+#include <unistd.h>
+#include <filesystem>
+
+#include <TFile.h>
+#include <TTree.h>
+#include <TCanvas.h>
+#include <TGraph.h>
+#include <TH1F.h>
+#include <TH3F.h>
+#include <TPolyLine3D.h>
+
+
+// Namespaces
+using namespace std::filesystem;
+using namespace std;
 
 using std::filesystem::directory_iterator;
 
@@ -177,6 +194,9 @@ void macro_DigDec(){
 
 					cout<<"PMT:  "<<fOpChDigi->at(k)<<endl;
 					TGraph *g1=new TGraph(dim,&x_raw[0],&y_raw[0]);
+					
+					// cout << x_raw << endl << endl; 
+					cout << x_raw[0] << endl << endl; 
 		
 					const int dim2 = x_deco.size();
 					if(!(dim2>0)) continue;

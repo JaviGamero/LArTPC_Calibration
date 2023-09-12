@@ -1,12 +1,15 @@
 .DS_Store
 .vscode
 
-# data is too heavy to upload, 72 Gb
+# data that is too heavy to upload
 /data
 /template
+DigitalisedSignal.csv 
+DeconvolvedSignal.csv
 
-# jupyter notebooks checkpoints 
+# python, jupyter notebooks checkpoints 
 .ipynb_checkpoints
+__pycache__
 
 # python environment
 /env
