@@ -14,6 +14,7 @@ This file will plot in a figure the most important signals:
 import os 
 import sys 
 
+# path to python main folder in this project
 libraries = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir)) 
 sys.path.append(libraries) 
 
@@ -87,7 +88,6 @@ for folder in os.listdir(ROOT):
                 LightSignalVIS = etl.getLightSignal(branches["SimPhotonsLiteVIS"][entry])
                 LightSignal = LightSignalVUV + LightSignalVIS # ideal signal is the sum up
                     
-                print('Length of Light signal: ', len(LightSignal))
                 ################################################################
                 # ADC SIGNALS
                 ################################################################
@@ -111,8 +111,6 @@ for folder in os.listdir(ROOT):
                     x_deco += signalDeco[0]
                     y_deco += signalDeco[1]
                 
-                print('Length of y_raw: ', len(y_raw))
-                print('Length of y_deco: ', len(y_deco))
                 ################################################################
                 # PLOT
                 ################################################################
