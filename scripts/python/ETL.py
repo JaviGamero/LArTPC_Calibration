@@ -92,3 +92,4 @@ class ETL_Techniques:
                 y.append(decoADC)
                 
         return [x, y]
+    
