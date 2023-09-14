@@ -32,10 +32,21 @@ class ETL_Techniques:
     def getElectronEnergyAndX0(self, stepX, PDGcode, dE):
         for j in range(len(stepX)):
             if PDGcode[j]!=self.particlePDG: continue # take the electron
-            dE_e = dE[j] 
+            dE_e = dE[j]  # this is the energy deposited
             startX_e = stepX[j][0]
             
             return dE_e, startX_e
+        
+    def getElectron2EnergiesAndX0(self, stepX, PDGcode, dE, E):
+        # this function is just like the one above, except that it also returns
+        # the real energy of the particle 
+        for j in range(len(stepX)):
+            if PDGcode[j]!=self.particlePDG: continue # take the electron
+            dE_e = dE[j]  # this is the energy deposited
+            startX_e = stepX[j][0]
+            E_e = E[j]
+            
+            return dE_e, E_e, startX_e
         
     def _calculateIdPMTs(self, X0):
         if X0 < 0: 
