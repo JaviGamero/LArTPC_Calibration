@@ -72,39 +72,39 @@ void macro_SignalDecomp()
 		    	tree->GetEntry(i);
 		    	if(event != pre_ID)
 				{
-				  	hVUV_total->Add(hVUV_mu);
-					  hVUV_total->Add(hVUV_e); 
-					  TCanvas *can2 = new TCanvas("can2", "can2",200,200,800,500);
-					  can2->cd(1);
-					  hVUV_total->SetTitle(0);
-					  hVUV_total->GetXaxis()->SetTitle("time [ns]");
-					  hVUV_total->GetYaxis()->SetTitle("entries");
-					  hVUV_total->SetLineColor(1);
-					  hVUV_total->Draw();
-					  hVUV_mu->SetLineColor(4);
-					  hVUV_mu->Draw("same");
-					  hVUV_e->SetLineColor(2);
-					  hVUV_e->Draw("same");
-					  
-					  can2->Update();
-					  can2->Modified();
-					  can2->WaitPrimitive();
-					  
-					  hVUV_mu->Reset();	  
-					  hVUV_e->Reset();
-					  hVUV_total->Reset();
+					cout << "Hello world" << endl;
+					hVUV_total->Add(hVUV_mu);
+					hVUV_total->Add(hVUV_e); 
+					TCanvas *can2 = new TCanvas("can2", "can2",200,200,800,500);
+					can2->cd(1);
+					hVUV_total->SetTitle(0);
+					hVUV_total->GetXaxis()->SetTitle("time [ns]");
+					hVUV_total->GetYaxis()->SetTitle("entries");
+					hVUV_total->SetLineColor(1);
+					hVUV_total->Draw();
+					hVUV_mu->SetLineColor(4);
+					hVUV_mu->Draw("same");
+					hVUV_e->SetLineColor(2);
+					hVUV_e->Draw("same");
+					
+					can2->Update();
+					can2->Modified();
+					can2->WaitPrimitive();
+					
+					hVUV_mu->Reset();	  
+					hVUV_e->Reset();
+					hVUV_total->Reset();
 				}
 	  
 		  		cout<< "it: " << i << ", run:" << run << ", subrun: " << subrun << ", event: " << event << ", trackID:" << trackID <<endl;
+				cout << "eventID: " << event << ", pre_ID: " << pre_ID << endl;
 		      
 			  	for(int k=0; k<fSimPhotonsVUV->size(); k++) 
 		  		{
-			
 					if(trackID == 1)
 			  		for(int j=0; j<fSimPhotonsVUV->at(k).size(); j++) 
 			  			hVUV_mu->Fill(fSimPhotonsVUV->at(k).at(j));
 			  		
-					
 					else
 			  		for(int j=0; j<fSimPhotonsVUV->at(k).size(); j++)
 			    		hVUV_e->Fill(fSimPhotonsVUV->at(k).at(j));	
