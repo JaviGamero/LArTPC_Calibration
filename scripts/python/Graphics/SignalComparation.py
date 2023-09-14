@@ -118,7 +118,7 @@ for folder in os.listdir(ROOT):
                 axs[0].hist(LightSignal, 1000, [0,10000])
                 axs[0].set_xlabel("Time, t (ns)")
                 axs[0].set_ylabel("# Photons")
-                axs[0].set_title("Light Signal (VUV, ideal)")
+                axs[0].set_title("Light Signal (ideal)")
                 
                 axs[1].plot(x_raw, y_raw)
                 axs[1].set_xlabel("Time, t (ns)")
