@@ -137,8 +137,9 @@ data = {'E': E_s, 'dE': dE_s}
 
 fig = plt.figure(figsize=(5,5))
 sns.histplot(data=data, stat='density', common_norm=True, multiple='dodge', bins=500)
-plt.xlim(0.02,0.2)
+plt.xlim(0.02,0.09)
 plt.xlabel("Energy, E (MeV)")
+plt.ylabel("Density (normalised)") # normalised such that the total area of the histogram is 1
 
 plt.tight_layout()
 plt.show()

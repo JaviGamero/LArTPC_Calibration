@@ -115,20 +115,23 @@ for folder in os.listdir(ROOT):
                 # PLOT
                 ################################################################
                 fig, axs = plt.subplots(1,3,figsize=(18, 8))
-                axs[0].hist(LightSignal, 1000, [0,10000])
+                axs[0].hist(LightSignal, 1000, [0,10000], color = 'b', label='Total')
                 axs[0].set_xlabel("Time, t (ns)")
                 axs[0].set_ylabel("# Photons")
                 axs[0].set_title("Light Signal (ideal)")
+                axs[0].legend(loc='best')
                 
-                axs[1].plot(x_raw, y_raw)
+                axs[1].plot(x_raw, y_raw, color = 'b', label='Total')
                 axs[1].set_xlabel("Time, t (ns)")
                 axs[1].set_ylabel("Digitalized signal, y_raw (ADC)")
                 axs[1].set_title("Digitalized signal")
+                axs[1].legend(loc='best')
                 
-                axs[2].plot(x_deco, y_deco)
+                axs[2].plot(x_deco, y_deco, color = 'b', label='Total')
                 axs[2].set_xlabel("Time, t (ns)")
                 axs[2].set_ylabel("Deconvolutioned signal, y_deco (ADC)")
                 axs[2].set_title("Deconvolutioned signal")
+                axs[2].legend(loc='best')
                 
                 plt.tight_layout()
                 plt.show()
