@@ -74,6 +74,7 @@ void macro_CreateCSV()
     strcat(data_preproc, "??.csv");
     ofstream file; // file where all temporary series will be written
     file.open(data_preproc);
+    string isclosed="False";
 
   	for (const auto &folder: directory_iterator(data_raw)) // iterate above folders
   	{
@@ -164,39 +165,39 @@ void macro_CreateCSV()
                 // =============================================================
 		        // IDEAL SIGNAL (VUV, VIS)
 		        // =============================================================
-                // TH1D *signalVUV = new TH1D("","",1000,0,10000);
-                // TH1D *signalVIS = new TH1D("","",1000,0,10000);
+                TH1D *signalVUV = new TH1D("","",1000,0,10000);
+                TH1D *signalVIS = new TH1D("","",1000,0,10000);
 
                 // obtain data from realistic PMTs
-                // for (int k=0; k<SimPhotonsLiteVUV->size(); k++)
-                // {
-                //     it = find(selected_pmtid.begin(), selected_pmtid.end(), k);
-                //     if (it == selected_pmtid.end()) continue; // .end() points outside, dismiss it
+                for (int k=0; k<SimPhotonsLiteVUV->size(); k++)
+                {
+                    it = find(selected_pmtid.begin(), selected_pmtid.end(), k);
+                    if (it == selected_pmtid.end()) continue; // .end() points outside, dismiss it
                     
-                //     // for(int j=0; j<SimPhotonsLiteVUV->at(k).size(); j++)
-				//  	//     signalVUV->Fill(SimPhotonsLiteVUV->at(k).at(j));
+                    // for(int j=0; j<SimPhotonsLiteVUV->at(k).size(); j++)
+				 	//     signalVUV->Fill(SimPhotonsLiteVUV->at(k).at(j));
 
-                //     for(int j=0; j<SimPhotonsLiteVIS->at(k).size(); j++)
-				//  	    signalVIS->Fill(SimPhotonsLiteVIS->at(k).at(j));	
-                // }
+                    for(int j=0; j<SimPhotonsLiteVIS->at(k).size(); j++)
+				 	    signalVIS->Fill(SimPhotonsLiteVIS->at(k).at(j));	
+                }
 
-                // int dim = signalVIS->GetNbinsX();
-                // TAxis *X = signalVIS->GetXaxis();
+                int dim = signalVIS->GetNbinsX();
+                TAxis *X = signalVIS->GetXaxis();
 
-                // int timeSerieVUV[dim];
-                // int timeSerieVIS[dim];
-                // int idealTimeSerie[dim];
-                // int x[dim];
+                int timeSerieVUV[dim];
+                int timeSerieVIS[dim];
+                int idealTimeSerie[dim];
+                int x[dim];
                 
-                // for (int j=0; j<=dim+1; j++) // finishes in Nbins+1, if there are N bins, there will be N+1 points
-                // {
-                //     // timeSerieVUV[j] = signalVUV -> GetBinContent(j);
-                //     timeSerieVIS[j] = signalVIS -> GetBinContent(j);
-                //     // idealTimeSerie[j] = timeSerieVIS[j] + timeSerieVUV[j];
-                // }   
+                for (int j=0; j<=dim+1; j++) // finishes in Nbins+1, if there are N bins, there will be N+1 points
+                {
+                    timeSerieVUV[j] = signalVUV -> GetBinContent(j);
+                    timeSerieVIS[j] = signalVIS -> GetBinContent(j);
+                    idealTimeSerie[j] = timeSerieVIS[j] + timeSerieVUV[j];
+                }   
 
-                // for (int j=0; j<dim; j++)
-                //     x[j] = X->GetBinCenter(j+1); // Bin indexes start at 1
+                for (int j=0; j<dim; j++)
+                    x[j] = X->GetBinCenter(j+1); // Bin indexes start at 1
 
                 // to write one csv for each serie
                 /* 
@@ -207,8 +208,15 @@ void macro_CreateCSV()
                 */
 
                 // to write all series in one csv
-                // string idx = to_string(ntree) + "_" + to_string(event);
+                string idx = to_string(ntree) + "_" + to_string(event);
                 // AddToCSV_T(timeSerieVIS, dim, idx, file);
+
+                if (ntree==0 && isclosed == "False")
+                {
+                    AddToCSV_T(x, dim, "Null", file);
+                    file.close();
+                    isclosed="True";
+                }                
 
 
                 // =============================================================
@@ -256,41 +264,41 @@ void macro_CreateCSV()
 		        // DECONVOLVED SIGNAL
 		        // =============================================================
 
-                for(int k=0; k<fOpChDeco->size(); k++) // for every photon detector
-		      	{
-                    double max_deco=-1;
+                // for(int k=0; k<fOpChDeco->size(); k++) // for every photon detector
+		      	// {
+                //     double max_deco=-1;
 
-                    //selecting the PMTs in the array we want to use
-					it = find (selected_pmtid.begin(), selected_pmtid.end(), fOpChDigi->at(k));
-					if (it == selected_pmtid.end()) continue;
+                //     //selecting the PMTs in the array we want to use
+				// 	it = find (selected_pmtid.begin(), selected_pmtid.end(), fOpChDigi->at(k));
+				// 	if (it == selected_pmtid.end()) continue;
 
-                    // This loop is for DECONVOLVED/RECONSTRUCTED signal
-					x_deco.clear(); y_deco.clear();    				
-					for(int j=0; j<fSignalsDeco->at(k).size(); j++)
-					{
-		  				double decoADC = fSignalsDeco->at(k).at(j)/500.; 
-		  				double t = fSamplingTime*j+fStampTimeDeco->at(k)*1000-shiftStamp; 
+                //     // This loop is for DECONVOLVED/RECONSTRUCTED signal
+				// 	x_deco.clear(); y_deco.clear();    				
+				// 	for(int j=0; j<fSignalsDeco->at(k).size(); j++)
+				// 	{
+		  		// 		double decoADC = fSignalsDeco->at(k).at(j)/500.; 
+		  		// 		double t = fSamplingTime*j+fStampTimeDeco->at(k)*1000-shiftStamp; 
 		  
-		  				if(max_deco < decoADC) max_deco = decoADC; // to limit the plot
+		  		// 		if(max_deco < decoADC) max_deco = decoADC; // to limit the plot
 		  
-		  				if(t>-1000 && t<11000)
-		  				{
-		    				x_deco.push_back(t);
-		    				y_deco.push_back(decoADC);
-		  				}	    
-					}	  
+		  		// 		if(t>-1000 && t<11000)
+		  		// 		{
+		    	// 			x_deco.push_back(t);
+		    	// 			y_deco.push_back(decoADC);
+		  		// 		}	    
+				// 	}	  
 
-                    const int dim = y_deco.size();
-                    if(!(dim>0)) continue;
+                //     const int dim = y_deco.size();
+                //     if(!(dim>0)) continue;
 
-                    int y[dim];
-                    for (int j=0; j<dim; j++)
-                        y[j] = y_deco[j];
+                //     int y[dim];
+                //     for (int j=0; j<dim; j++)
+                //         y[j] = y_deco[j];
 
-                    string idx = to_string(ntree) + "_" + to_string(event);
-                    AddToCSV_T(y, dim, idx, file); 
+                //     string idx = to_string(ntree) + "_" + to_string(event);
+                //     AddToCSV_T(y, dim, idx, file); 
 	        
-                }
+                // }
             
             } // end of main loop 
             ntree++;

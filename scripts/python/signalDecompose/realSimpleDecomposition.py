@@ -29,7 +29,7 @@ sys.path.append(libraries)
 ################################################################################
 import numpy as np 
 import pandas as pd
-from decompose import idealDecomposition as dec
+from decompose import idealDecompositionNS as dec
 import matplotlib.pyplot as plt
 
 ################################################################################
@@ -54,6 +54,10 @@ for idx in signals.index:
     # to work, we convert each signal into a 1D numpy array
     signal = signals.loc[idx, :].copy()
     signal = np.array(signal).reshape(-1)
+    
+    plt.plot(signal)
+    plt.xlim(0,100)
+    plt.show()
 
     # how many random points to use... mmmm
     
