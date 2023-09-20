@@ -5,12 +5,12 @@ Author: Javier Gamero Muñoz
 This script will use a simple method to decompose the total signal and extract 
 the one from the electron.
 
-First, we will take a random moment to calculate A0 from the expression 
+First, we will fit the exponential decay equation,  
     A(t) = A0 * e^{-gamma t},
-corresponding to the exponential decay of a particle.
+to the slow component time serie.
 
-After that, with an A0 for each signal, we calculate what point has the larger 
-error, it will corresponds with the point where the electron decay begins.
+After that, with the fit done for each signal, we calculate what point has the 
+larger error, it will corresponds with the point where the electron decay begins
 From this point and on, we remove A(t), resulting in the electron decay.
 """
 
@@ -29,35 +29,55 @@ sys.path.append(libraries)
 ################################################################################
 import numpy as np 
 import pandas as pd
-from decompose import idealDecompositionNS as dec
 import matplotlib.pyplot as plt
+
+from decompose import idealDecompositionGreedyNS as decompose
+from random import seed
 
 ################################################################################
 # Functions
 ################################################################################
 
-# empty by the moment
+expDecay = lambda t, tau, A0: A0 * np.exp(-t/tau) # tau in (ns)
 
 ################################################################################
-# Data preprocessed
+# Data preprocessed and variables
 ################################################################################
 # remember that time series are loaded in each line
 data_path = os.path.join(os.getcwd(), 'data_preproc/LightSignal_VUVplusVIS.csv')
+t_path = os.path.join(os.getcwd(), 'data_preproc/LightSignal_t.csv')
 
 signals = pd.read_csv(data_path, sep=';', header=None)
 signals.set_index(0, inplace=True) # set the first column as the index of each signal
 
+t0 = 120 # (ns), moment to start considering the slow component, EXPERIMENTAL
+t = pd.read_csv(t_path, sep=';', header=None)
+t_idx = np.where(t>t0)[1]   
+t = np.array(t.iloc[0, t_idx]).reshape(-1) 
+
+tau_slow = 1.6e+03 # decay time of the slow component
+
 ################################################################################
 # Adventure begins
 ################################################################################
+seed(2023) # results reconstruction available
+
 for idx in signals.index: 
-    # to work, we convert each signal into a 1D numpy array
-    signal = signals.loc[idx, :].copy()
+    signal = signals.loc[idx, t_idx].copy()
     signal = np.array(signal).reshape(-1)
     
-    plt.plot(signal)
-    plt.xlim(0,100)
-    plt.show()
-
-    # how many random points to use... mmmm
     
+    model = decompose()
+    model.manualFit(signal, t, n = 200) # fit A0
+    
+    Aslow = [expDecay(i, tau_slow, model.A0) for i in t] 
+    
+    e_signal = model.extractElectronSignal(model.A0, tau_slow, signal, t)
+    
+    plt.plot(t, signal, label='Original')
+    # plt.plot(t, Aslow, label='Fit')
+    # plt.plot(t, e_signal, label='Electron decomposed')
+    plt.legend(loc='best')
+    plt.show()
+    
+    # TRY FITTING TAU AND SEE THE TAU 

@@ -213,7 +213,7 @@ void macro_CreateCSV()
 
                 if (ntree==0 && isclosed == "False")
                 {
-                    AddToCSV_T(x, dim, "Null", file);
+                    AddToCSV_T(x, dim, "0", file);
                     file.close();
                     isclosed="True";
                 }                
