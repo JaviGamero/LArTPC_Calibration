@@ -1,4 +1,5 @@
 from random import randint, seed
+from scipy.optimize import curve_fit
 import numpy as np 
 
 class idealDecompositionGreedyNS(): 
@@ -24,20 +25,14 @@ class idealDecompositionGreedyNS():
         self.A0 = A0 
         self.decayTime = decayTime # (ns)
 
-    def decayEq(self, t, A0=None, tau=None):
-        if (A0==None and tau==None):
-            return self.A0 * np.exp(-t/self.decayTime)
-        else: 
-            return A0 * np.exp(-t/tau)
+    def decayEq(self, t, A0, tau): 
+        return A0 * np.exp(-t/tau)
     
     def _calculateA0(self, t, y):
         self.A0 = y * np.exp(t/self.decayTime)
         
     def _getA0(self):
         return self.A0
-    
-    def _calculateDecayTime(self, t1, y1, t2, y2):
-        self.decayTime = (t2-t1) / np.log(y1/y2)
         
     def _getDecayTime(self): 
         return self.decayTime
@@ -66,14 +61,27 @@ class idealDecompositionGreedyNS():
         
         self.A0 = np.mean(A0_list)
         
-    def extractElectronSignal(self, A0, tau, signal, t):
+    def automaticFit(self, func, signal, t): 
+        params, _ = curve_fit(self.decayEq, t, signal)
+        print(params)
+        
+        return 
+        
+    def extractElectronSignal(self, signal, t):
         """
-        Once the experimental signal has been fitted, we substract it the result 
-        taking into account that we cannot have negative values. 
-        Parameters seem to be clear. 
+        Once the experimental signal has been fitted, we first look for the 
+        point with the highest error.
+        From this point on, we remove the muon signal with the fitted curve. 
+        Before it, we set 0.
         """
         
-        e_signal = np.array([signal[i] - self.decayEq(t[i], A0, tau) for i in range(len(t))])
-        e_signal[np.where(e_signal<0)] = 0
+        signal_fit = self.decayEq(t, self.A0, self.decayTime)
+        error = signal-signal_fit
+        max_error_idx = np.argmax(error)
+        
+        e_signal = np.array(error)
+        e_signal[:max_error_idx] = 0 # set values before e to 0
+        
+        e_signal[np.where(e_signal<0)] = 0 # negative values to 0
         
         return e_signal

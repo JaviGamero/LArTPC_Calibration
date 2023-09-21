@@ -1,5 +1,5 @@
 """
-realSimpleDecomposition.py
+idealSimpleDecomposition.py
 Author: Javier Gamero Muñoz
 
 This script will use a simple method to decompose the total signal and extract 
@@ -50,7 +50,7 @@ t_path = os.path.join(os.getcwd(), 'data_preproc/LightSignal_t.csv')
 signals = pd.read_csv(data_path, sep=';', header=None)
 signals.set_index(0, inplace=True) # set the first column as the index of each signal
 
-t0 = 120 # (ns), moment to start considering the slow component, EXPERIMENTAL
+t0 = 200 # (ns), moment to start considering the slow component, EXPERIMENTAL
 t = pd.read_csv(t_path, sep=';', header=None)
 t_idx = np.where(t>t0)[1]   
 t = np.array(t.iloc[0, t_idx]).reshape(-1) 
@@ -68,15 +68,17 @@ for idx in signals.index:
     
     
     model = decompose()
-    model.manualFit(signal, t, n = 200) # fit A0
+    model.manualFit(signal, t, n = 300) # fit A0
+    # model.automaticFit(expDecay, signal, t)
     
     Aslow = [expDecay(i, tau_slow, model.A0) for i in t] 
     
-    e_signal = model.extractElectronSignal(model.A0, tau_slow, signal, t)
+    e_signal = model.extractElectronSignal(signal, t)
     
-    plt.plot(t, signal, label='Original')
-    # plt.plot(t, Aslow, label='Fit')
-    # plt.plot(t, e_signal, label='Electron decomposed')
+    plt.plot(t, signal, c='g', label='Original')
+    plt.plot(t, Aslow, c='b', label='Manual fit')
+
+    plt.plot(t, e_signal, c='r', label='Electron decomposed')
     plt.legend(loc='best')
     plt.show()
     
