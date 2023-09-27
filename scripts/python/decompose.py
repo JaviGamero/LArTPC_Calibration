@@ -2,10 +2,10 @@ from random import randint, seed
 from scipy.optimize import curve_fit
 import numpy as np 
 
-class idealDecompositionGreedyNS(): 
+class idealDecompositionGreedy(): 
     """
     The main objective of this class is to provide the necessary to separate 
-    the signal of the electron from the total one using a Non Supervised method
+    the signal of the electron from the total one using a simple method
     
     The first method: 
     For each signal, random points t will be taken to calculate the A0 value 
@@ -18,27 +18,27 @@ class idealDecompositionGreedyNS():
     point and on, resulting in an aproximation of the electron signal.
     
     The second method is to automatically fit both A0 and tau using all the 
-    points of the signal. To do this, the scipy package would be used. 
+    points of the signal. To do this, the scipy package will be used. 
+    After fitting bot parameters, the process is the same.
     """
     
-    def __init__(self, decayTime=1.6e+03, A0=0):
+    def __init__(self, tau=1.6e+03, A0=0):
         self.A0 = A0 
-        self.decayTime = decayTime # (ns)
+        self.tau = tau # (ns)
 
     def decayEq(self, t, A0, tau): 
         return A0 * np.exp(-t/tau)
     
     def _calculateA0(self, t, y):
-        self.A0 = y * np.exp(t/self.decayTime)
+        self.A0 = y * np.exp(t/self.tau)
         
     def _getA0(self):
         return self.A0
         
     def _getDecayTime(self): 
-        return self.decayTime
+        return self.tau
         
     def manualFit(self, signal, t, n = 10):
-        
         """ 
         This function fits manually A0 considering the decay time of the 
         scintilliation ligth slow component. In order to do it, it uses n random 
@@ -61,11 +61,14 @@ class idealDecompositionGreedyNS():
         
         self.A0 = np.mean(A0_list)
         
-    def automaticFit(self, func, signal, t): 
-        params, _ = curve_fit(self.decayEq, t, signal)
-        print(params)
+    def automaticFit(self, signal, t, p0 = [80, 1.6e+03]): 
+        """
+        This method uses an authomatic fit from the package sicpy
+        """
         
-        return 
+        params, _ = curve_fit(self.decayEq, t, signal, p0)
+        self.A0 = params[0]
+        self.tau = params[1]
         
     def extractElectronSignal(self, signal, t):
         """
@@ -75,7 +78,7 @@ class idealDecompositionGreedyNS():
         Before it, we set 0.
         """
         
-        signal_fit = self.decayEq(t, self.A0, self.decayTime)
+        signal_fit = self.decayEq(t, self.A0, self.tau)
         error = signal-signal_fit
         max_error_idx = np.argmax(error)
         
@@ -85,3 +88,6 @@ class idealDecompositionGreedyNS():
         e_signal[np.where(e_signal<0)] = 0 # negative values to 0
         
         return e_signal
+    
+    def calculateSignalFit(self, t): 
+        return [self.decayEq(i, self.A0, self.tau) for i in t]

@@ -1,5 +1,5 @@
 """
-idealSimpleDecomposition.py
+idealSimple_NSDecomposition.py
 Author: Javier Gamero Muñoz
 
 This script will use a simple method to decompose the total signal and extract 
@@ -32,20 +32,20 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from decompose import idealDecompositionGreedyNS as decompose
+from decompose import idealDecompositionGreedy as decompose
 from random import seed
 
 ################################################################################
 # Functions
 ################################################################################
 
-expDecay = lambda t, tau, A0: A0 * np.exp(-t/tau) # tau in (ns)
+expDecay = lambda t, A0, tau: A0 * np.exp(-t/tau) # tau in (ns)
 
 ################################################################################
 # Data preprocessed and variables
 ################################################################################
 # remember that time series are loaded in each line
-data_path = os.path.join(os.getcwd(), 'data_preproc/LightSignal_VUVplusVIS.csv')
+data_path = os.path.join(os.getcwd(), 'data_preproc/LightSignal_total.csv')
 t_path = os.path.join(os.getcwd(), 'data_preproc/LightSignal_t.csv')
 
 signals = pd.read_csv(data_path, sep=';', header=None)
@@ -67,20 +67,33 @@ for idx in signals.index:
     signal = signals.loc[idx, t_idx].copy()
     signal = np.array(signal).reshape(-1)
     
-    
     model = decompose()
+    
     model.manualFit(signal, t, n = 300) # fit A0
-    # model.automaticFit(expDecay, signal, t)
+    signal_manualFit = model.calculateSignalFit(t)
+    e_manualSignal = model.extractElectronSignal(signal, t)
     
-    Aslow = [expDecay(i, tau_slow, model.A0) for i in t] 
+    model.automaticFit(signal, t)
+    signal_automFit = model.calculateSignalFit(t)
+    e_automSignal = model.extractElectronSignal(signal, t)
     
-    e_signal = model.extractElectronSignal(signal, t)
+    fig, axs = plt.subplots(1,2, figsize = (10,5))
     
-    plt.plot(t, signal, c='g', label='Original')
-    plt.plot(t, Aslow, c='b', label='Manual fit')
-
-    plt.plot(t, e_signal, c='r', label='Electron decomposed')
-    plt.legend(loc='best')
+    axs[0].plot(t, signal, c='g', label='Original')
+    axs[0].plot(t, signal_manualFit, c='b', label='Fit')
+    axs[0].plot(t, e_manualSignal, c='r', label='Electron decomposed')
+    axs[0].set_xlabel('Time, t (ns)')
+    axs[0].set_ylabel('# Photons')
+    axs[0].set_title('Fitting A0, tau = 1600(ns)')
+    axs[0].legend(loc='best')
+    
+    axs[1].plot(t, signal, c='g', label='Original')
+    axs[1].plot(t, signal_automFit, c='b', label='Fit')
+    axs[1].plot(t, e_automSignal, c='r', label='Electron decomposed')
+    axs[1].set_xlabel('Time, t (ns)')
+    axs[1].set_ylabel('# Photons')
+    axs[1].set_title('Fitting both A0 and tau')
+    axs[1].legend(loc='best')
+    
+    plt.tight_layout()
     plt.show()
-    
-    # TRY FITTING TAU AND SEE THE TAU 
