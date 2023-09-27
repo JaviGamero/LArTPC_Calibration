@@ -92,8 +92,8 @@ for folder in os.listdir(ROOT):
                                                                branches["E"][entry])
                 if dE_e < 0.02: continue
 
-                dE.append(dE_e)
-                E.append(E_e)
+                dE.append(dE_e) # MeV
+                E.append(E_e*1e+03) # GeV to MeV
         
         n_tree += 1
         print('Tree: ', n_tree)
@@ -108,38 +108,22 @@ print('Time reading all the trees: ', time()-t0)
 E_s = np.array(E).reshape(-1,1)
 dE_s = np.array(dE).reshape(-1,1)
 
-scaler = MinMaxScaler()
-E_s = scaler.fit_transform(E_s)
-dE_s = scaler.fit_transform(dE_s)
-
-# fig1 = plt.figure(figsize=(5,5))
-# plt.hist(E_s, bins=500, density=True, color="green")
-# plt.title('Energy deposited (dE)')
-# plt.xlabel('Energy deposited, dE (MeV)')
-# plt.xlim(0.02,0.2)
-
-# fig2 = plt.figure(figsize=(5,5))
-# plt.hist(dE_s, bins=500, density=True, color="blue")
-# plt.title('Real energy (dE)')
-# plt.xlabel('Real energy, dE (MeV)')
-# plt.xlim(0.02,0.2)
-
-# fig3 = plt.figure(figsize=(5,5))
-# n, bins, patches = plt.hist([dE_s, E_s], bins=500, alpha=0.40 , label = 'setA', normed=True)  
-# # plt.hist(dE_s, bins=500, normed=True, alpha=0.40, color="blue")
-# # plt.hist(E_s, bins=500, normed=True, alpha = 0.40, color="green")
-# plt.xlabel('Energy, E (MeV)')
-# plt.xlim(0.02,0.2)
+# scaler = MinMaxScaler()
+# E_s = scaler.fit_transform(E_s)
+# dE_s = scaler.fit_transform(dE_s)
 
 E_s = E_s.reshape(-1)
 dE_s = dE_s.reshape(-1)
 data = {'E': E_s, 'dE': dE_s}
 
 fig = plt.figure(figsize=(5,5))
-sns.histplot(data=data, stat='density', common_norm=True, multiple='dodge', bins=500)
-plt.xlim(0.02,0.09)
+
+# common_norm such that the total area of the histogram is 1 --> normalised
+sns.histplot(data=data, stat='density', common_norm=True, multiple='stack', bins=500)
+# plt.xlim(0.02,0.09) # when normalised
+plt.xlim(2,55)
 plt.xlabel("Energy, E (MeV)")
-plt.ylabel("Density (normalised)") # normalised such that the total area of the histogram is 1
+plt.ylabel("Density") 
 
 plt.tight_layout()
 plt.show()
