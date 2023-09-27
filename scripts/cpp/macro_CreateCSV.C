@@ -174,8 +174,8 @@ void macro_CreateCSV()
                     it = find(selected_pmtid.begin(), selected_pmtid.end(), k);
                     if (it == selected_pmtid.end()) continue; // .end() points outside, dismiss it
                     
-                    // for(int j=0; j<SimPhotonsLiteVUV->at(k).size(); j++)
-				 	//     signalVUV->Fill(SimPhotonsLiteVUV->at(k).at(j));
+                    for(int j=0; j<SimPhotonsLiteVUV->at(k).size(); j++)
+				 	    signalVUV->Fill(SimPhotonsLiteVUV->at(k).at(j));
 
                     for(int j=0; j<SimPhotonsLiteVIS->at(k).size(); j++)
 				 	    signalVIS->Fill(SimPhotonsLiteVIS->at(k).at(j));	
@@ -209,14 +209,14 @@ void macro_CreateCSV()
 
                 // to write all series in one csv
                 string idx = to_string(ntree) + "_" + to_string(event);
-                // AddToCSV_T(timeSerieVIS, dim, idx, file);
+                AddToCSV_T(timeSerieVIS, dim, idx, file);
 
-                if (ntree==0 && isclosed == "False")
-                {
-                    AddToCSV_T(x, dim, "0", file);
-                    file.close();
-                    isclosed="True";
-                }                
+                // if (ntree==0 && isclosed == "False") # this loop is for x axis
+                // {
+                //     AddToCSV_T(x, dim, "0", file);
+                //     file.close();
+                //     isclosed="True";
+                // }                
 
 
                 // =============================================================
