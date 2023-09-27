@@ -21,7 +21,8 @@ import os
 import sys 
 
 # path to python main folder in this project
-libraries = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir)) 
+libraries = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)), 
+                                         os.pardir)) 
 sys.path.append(libraries) 
 
 ################################################################################
