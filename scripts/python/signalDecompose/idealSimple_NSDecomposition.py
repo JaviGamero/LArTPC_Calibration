@@ -70,10 +70,12 @@ for idx in signals.index:
     model = decompose()
     
     model.manualFit(signal, t, n = 300) # fit A0
+    print('Manual, A0: ', model.A0)
     signal_manualFit = model.calculateSignalFit(t)
     e_manualSignal = model.extractElectronSignal(signal, t)
     
     model.automaticFit(signal, t)
+    print('Automatic, A0: ', model.A0, ', tau: ', model.tau, '\n')
     signal_automFit = model.calculateSignalFit(t)
     e_automSignal = model.extractElectronSignal(signal, t)
     

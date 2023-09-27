@@ -54,29 +54,7 @@ t = np.array(t.iloc[0, t_idx]).reshape(-1)
 ################################################################################
 
 seed(2023)
-# x = np.arange(0,1,0.01)
-# y = [expDecay(i, 2, 4) + random() for i in x]
-
-# params, _ = curve_fit(expDecay, x, y)
-# print(params)
-# y_fit = [expDecay(i, params[0], params[1]) for i in x]
-
-# plt.plot(x, y, label = 'original')
-# plt.plot(x, y_fit, label = 'fit')
-# plt.legend(loc='best')
-# plt.show()
 
 for idx in mu_signals.index: 
     signal = mu_signals.loc[idx, t_idx].copy()
     signal = np.array(signal).reshape(-1)
-    
-    params, _ = curve_fit(expDecay, t, signal, [1.6e+03, 80])
-    print(params)
-    signal_fit = [expDecay(i, params[0], params[1]) for i in t]
-    
-    plt.plot(t, signal, label = 'original')
-    plt.plot(t, signal_fit, label = 'fit')
-    plt.ylim(0, np.max(signal))
-    plt.legend(loc='best')
-    
-    plt.show()
