@@ -47,7 +47,7 @@ shiftStamp = 135. # ns
 ################################################################################
 t0 = time()
 n_tree = 0
-branches_to_activate = ["stepX", "dE", "E", "PDGcode", "eventID"]
+branches_to_activate = ["stepX", "dE", "E", "PDGcode", "eventID", "energydep"]
 
 # PMT IDs
 PMTs = np.loadtxt(os.path.join(os.getcwd(), "data/PMT_IDs.txt"))
@@ -57,6 +57,7 @@ IdPMTs_R = [int(i) for i in PMTs if (i%2 != 0)] # odd PMT IDs, right (X>0)
 # arrays that will contain the distribution of energies
 dE = []
 E = []
+total_dE = []
 
 ################################################################################
 # MAIN LOOP
@@ -90,9 +91,14 @@ for folder in os.listdir(ROOT):
                                                                branches["PDGcode"][entry],
                                                                branches["dE"][entry],
                                                                branches["E"][entry])
+                
+                # and take all the energydep by all the particles
+                # totalEnergyDep = etl.getTotalEnergyDep(branches["energydep"][entry])
+                
                 if dE_e < 0.02: continue
 
                 dE.append(dE_e) # MeV
+                # total_dE.append(totalEnergyDep) # MeV
                 E.append(E_e*1e+03) # GeV to MeV
         
         n_tree += 1
@@ -111,10 +117,11 @@ dE_s = np.array(dE).reshape(-1,1)
 # scaler = MinMaxScaler()
 # E_s = scaler.fit_transform(E_s)
 # dE_s = scaler.fit_transform(dE_s)
-
 E_s = E_s.reshape(-1)
 dE_s = dE_s.reshape(-1)
+
 data = {'E': E_s, 'dE': dE_s}
+# data = {'dE': dE_s, 'total_dE': total_dE}
 
 fig = plt.figure(figsize=(5,5))
 

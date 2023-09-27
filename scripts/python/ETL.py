@@ -48,6 +48,15 @@ class ETL_Techniques:
             
             return dE_e, E_e, startX_e
         
+    def getTotalEnergyDep(self, energydep):
+        # this function calculates the sum of the enerhy deposition by all the 
+        # particles
+        s = 0
+        for j in range(len(energydep)): 
+            s += np.sum(energydep[j])
+            
+        return s
+        
     def _calculateIdPMTs(self, X0):
         if X0 < 0: 
             self.sel_PMTsID = self.IdPMTs_L
