@@ -1,8 +1,9 @@
-from random import randint, seed
+from random import randint
 from scipy.optimize import curve_fit
 import numpy as np 
+import matplotlib.pyplot as plt 
 
-class idealDecompositionGreedy(): 
+class greedyDecomposition(): 
     """
     The main objective of this class is to provide the necessary to separate 
     the signal of the electron from the total one using a simple method
@@ -22,9 +23,15 @@ class idealDecompositionGreedy():
     After fitting bot parameters, the process is the same.
     """
     
-    def __init__(self, tau=1.6e+03, A0=0):
+    def __init__(self, t, signal, GT_signal = [], tau=1.45e+03, A0=0):
         self.A0 = A0 
         self.tau = tau # (ns)
+        self.t = t
+        
+        self.signal = signal
+        self.GT_signal = GT_signal
+        self.fit_signal = []
+        self.decomp_signal = []
 
     def decayEq(self, t, A0, tau): 
         return A0 * np.exp(-t/tau)
@@ -38,7 +45,7 @@ class idealDecompositionGreedy():
     def _getDecayTime(self): 
         return self.tau
         
-    def manualFit(self, signal, t, n = 10):
+    def manualFit(self, n = 10):
         """ 
         This function fits manually A0 considering the decay time of the 
         scintilliation ligth slow component. In order to do it, it uses n random 
@@ -50,44 +57,75 @@ class idealDecompositionGreedy():
         - n: number of points to use when calculating A0
         """
         
-        dim = len(signal)
+        dim = len(self.signal)
         
         idxs = [randint(0,dim-1) for i in range(n)]
         A0_list = []
         
         for idx in idxs: 
-            self._calculateA0(t[idx], signal[idx])
+            self._calculateA0(self.t[idx], self.signal[idx])
             A0_list.append(self.A0)
         
         self.A0 = np.mean(A0_list)
+        self.fit_signal = self.decayEq(self.t, self.A0, self.tau)
         
-    def automaticFit(self, signal, t, p0 = [80, 1.6e+03]): 
+    def automaticFit(self, p0 = [80, 1.6e+03]): 
         """
         This method uses an authomatic fit from the package sicpy
         """
         
-        params, _ = curve_fit(self.decayEq, t, signal, p0)
+        params, _ = curve_fit(self.decayEq, self.t, self.signal, p0)
         self.A0 = params[0]
         self.tau = params[1]
+        self.fit_signal = self.decayEq(self.t, self.A0, self.tau)
         
-    def extractElectronSignal(self, signal, t):
+    def extractElectronSignal(self, window_size = 50):
         """
         Once the experimental signal has been fitted, we first look for the 
         point with the highest error.
-        From this point on, we remove the muon signal with the fitted curve. 
-        Before it, we set 0.
+        One this point is calculated, we add 'window_size' (ns) to the moment 
+        where the electron signal starts since scales gradually.
         """
         
-        signal_fit = self.decayEq(t, self.A0, self.tau)
-        error = signal-signal_fit
+        error = self.signal-self.fit_signal
         max_error_idx = np.argmax(error)
         
         e_signal = np.array(error)
-        e_signal[:max_error_idx] = 0 # set values before e to 0
+        max_error_idx = np.where(self.t >= self.t[max_error_idx]-window_size)[0][0]
+        e_signal[:max_error_idx] = 0 # set values before e-windowsize to 0
         
         e_signal[np.where(e_signal<0)] = 0 # negative values to 0
         
-        return e_signal
+        self.decomp_signal = e_signal
     
-    def calculateSignalFit(self, t): 
-        return [self.decayEq(i, self.A0, self.tau) for i in t]
+    def plotSignals(self):
+        if (np.array(self.GT_signal).size > 0): 
+            fig, axs = plt.subplots(1,2, figsize = (10,5))
+            
+            axs[0].plot(self.t, self.signal, c='black', label='Original')
+            axs[0].plot(self.t, self.fit_signal, c='b', label='Fit')
+            axs[0].plot(self.t, self.decomp_signal, c='r', label='Electron decomposed')
+            axs[0].set_xlabel('Time, t (ns)')
+            axs[0].set_ylabel('# Photons')
+            axs[0].legend(loc='best')   
+            
+            axs[1].plot(self.t, self.GT_signal, c='g', label='GT')
+            axs[1].plot(self.t, self.decomp_signal, c='r', label='Decomposition', alpha=0.8)
+            axs[1].set_xlabel('Time, t (ns)')
+            axs[1].set_ylabel('# Photons')
+            axs[1].legend(loc='best')
+            
+        else: 
+            fig, axs = plt.subplots(1,1, figsize = (7,7))
+            
+            axs.plot(self.t, self.signal, c='g', label='Original')
+            axs.plot(self.t, self.fit_signal, c='b', label='Fit')
+            axs.plot(self.t, self.decomp_signal, c='r', label='Electron decomposed')
+            axs.set_xlabel('Time, t (ns)')
+            axs.set_ylabel('# Photons')
+            axs.set_title('Fitting A0, tau = 1450(ns)')
+            axs.legend(loc='best')   
+
+        
+        plt.tight_layout()
+        plt.show() 
