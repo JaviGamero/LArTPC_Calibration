@@ -79,7 +79,7 @@ void macro_CreateCSV_decomp()
 			TH1D* hVIS_mu = new TH1D("","",1000,0,10000);
 		    TH1D* hVUV_e = new TH1D("","",1000,0,10000);
 			TH1D* hVIS_e = new TH1D("","",1000,0,10000);
-		    int pre_ID = 1;
+		    int pre_ID = 0;
 
 		    for (int i=0; i<tree->GetEntries(); i++)
 		    {
@@ -87,6 +87,7 @@ void macro_CreateCSV_decomp()
 		    	if(event != pre_ID)
 				{
 					// Add to csv
+					// cout << event << endl;
 					int dim = hVUV_mu->GetNbinsX();
 					TAxis *X = hVUV_mu->GetXaxis();
 
@@ -97,8 +98,9 @@ void macro_CreateCSV_decomp()
 
 					for (int j=0; j<=dim+1; j++) // finishes in Nbins+1, if there are N bins, there will be N+1 points
 					{
-						timeSerieVUV[j] = hVUV_e -> GetBinContent(j);
-						timeSerieVIS[j] = hVIS_e -> GetBinContent(j);
+						// choose the particle --> _e, _mu
+						timeSerieVUV[j] = hVUV_mu -> GetBinContent(j);
+						timeSerieVIS[j] = hVIS_mu -> GetBinContent(j);
 						idealTimeSerie[j] = timeSerieVIS[j] + timeSerieVUV[j];
 					}   
 
