@@ -103,14 +103,17 @@ class greedyDecomposition():
             fig, axs = plt.subplots(1,2, figsize = (10,5))
             
             axs[0].plot(self.t, self.signal, c='black', label='Original')
-            axs[0].plot(self.t, self.fit_signal, c='b', label='Fit')
-            axs[0].plot(self.t, self.decomp_signal, c='r', label='Electron decomposed')
+            if (np.array(self.fit_signal).size > 0): 
+                axs[0].plot(self.t, self.fit_signal, c='b', label='Fit')
+            if (np.array(self.decomp_signal).size > 0): 
+                axs[0].plot(self.t, self.decomp_signal, c='r', label='Electron decomposed')
             axs[0].set_xlabel('Time, t (ns)')
             axs[0].set_ylabel('# Photons')
             axs[0].legend(loc='best')   
             
             axs[1].plot(self.t, self.GT_signal, c='g', label='GT')
-            axs[1].plot(self.t, self.decomp_signal, c='r', label='Decomposition', alpha=0.8)
+            if (np.array(self.decomp_signal).size > 0):
+                axs[1].plot(self.t, self.decomp_signal, c='r', label='Decomposition', alpha=0.8)
             axs[1].set_xlabel('Time, t (ns)')
             axs[1].set_ylabel('# Photons')
             axs[1].legend(loc='best')
@@ -119,7 +122,8 @@ class greedyDecomposition():
             fig, axs = plt.subplots(1,1, figsize = (7,7))
             
             axs.plot(self.t, self.signal, c='g', label='Original')
-            axs.plot(self.t, self.fit_signal, c='b', label='Fit')
+            if (np.array(self.fit_signal).size > 0): 
+                axs.plot(self.t, self.fit_signal, c='b', label='Fit')
             if (np.array(self.decomp_signal).size > 0): 
                 axs.plot(self.t, self.decomp_signal, c='r', label='Electron decomposed')
             axs.set_xlabel('Time, t (ns)')
@@ -132,9 +136,20 @@ class greedyDecomposition():
         plt.show() 
         
 class quality(): 
-    def __init__(self, GT, decomposed):
-        self.GT = GT
-        self.decomposed = decomposed
+    def __init__(self, t, GT_signal, decomp_signal):
+        self.t = t
+        self.GT_signal = GT_signal
+        self.decomp_signal = decomp_signal
         
     def _relativeError(self, actual, calc):    
         return np.abs(actual-calc) / actual
+    
+    def isElectronExctracted(self, max_time_gap = 50):
+        idx_max_GT = np.argmax(self.GT_signal)
+        idx_max_decomp = np.argmax(self.decomp_signal)
+        
+        if np.abs(self.t[idx_max_decomp] - self.t[idx_max_GT]) < max_time_gap: 
+            return True
+        
+        else: return False
+        

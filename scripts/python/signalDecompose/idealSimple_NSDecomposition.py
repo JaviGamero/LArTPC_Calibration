@@ -76,6 +76,8 @@ nphotons_min = 5 # min photons a signal needs to have in a moment to be able of
                  # recognising the electron
 
 r = [] # list of relative erros
+e_found = 0 # number of electrons found
+e_total = 0  # number of electrons localble
 
 for idx in signals.index: 
     print(idx)
@@ -100,7 +102,14 @@ for idx in signals.index:
     model_GT.automaticFit() # calculate tau 
     model.extractElectronSignal()
     
-    q = quality(e_signal, e_signal_calc)
+    q = quality(t, e_signal, e_signal_calc)
     r.append(q._relativeError(model_GT.tau, model.tau)*100)
     
-print("Mean relative error: ", np.mean(r), "%") # 5% of relative error --> perfect
+    e_correct = q.isElectronExctracted()
+    e_total += 1
+    if e_correct: e_found+=1
+    
+    
+print("Mean relative error: {0}%".format(np.mean(r))) # 5% of relative error --> perfect
+print('Ratio e locable found: {0}%'.format(e_found / e_total * 100)) # 72% localized --> not bad
+print('Ratio e total found: {0}%'.format(e_found / signals.shape[0] * 100)) # 32%...
