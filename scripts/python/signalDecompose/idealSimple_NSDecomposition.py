@@ -32,7 +32,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from decompose import idealDecompositionGreedy as decompose
+from decompose import greedyDecomposition as decompose
 from random import seed
 
 ################################################################################
@@ -46,56 +46,59 @@ expDecay = lambda t, A0, tau: A0 * np.exp(-t/tau) # tau in (ns)
 ################################################################################
 # remember that time series are loaded in each line
 data_path = os.path.join(os.getcwd(), 'data_preproc/LightSignal_total.csv')
-t_path = os.path.join(os.getcwd(), 'data_preproc/LightSignal_t.csv')
-
 signals = pd.read_csv(data_path, sep=';', header=None)
 signals.set_index(0, inplace=True) # set the first column as the index of each signal
 
-t0 = 200 # (ns), moment to start considering the slow component, EXPERIMENTAL
-t = pd.read_csv(t_path, sep=';', header=None)
+t_path = os.path.join(os.getcwd(), 'data_preproc/LightSignal_t.csv')
+t0 = 150 # (ns), moment to start considering the slow component, EXPERIMENTAL
+t = pd.read_csv(t_path, sep=';', header=None) # t[0] is nonsensen, remove it
 t_idx = np.where(t>t0)[1]   
-t = np.array(t.iloc[0, t_idx]).reshape(-1) 
+t = np.array(t.iloc[0, t_idx]).reshape(-1) #1D array from t0 and on
 
-tau_slow = 1.6e+03 # decay time of the slow component
+e_GT_path = os.path.join(os.getcwd(), 'data_preproc/LightSignal_decomp_e.csv')
+e_signals = pd.read_csv(e_GT_path, sep=';', header=None)
+e_signals.set_index(0, inplace=True)
+e_signals = e_signals.loc[signals.index, :] # take only those with the electron
+
+mu_GT_path = os.path.join(os.getcwd(), 'data_preproc/LightSignal_decomp_mu.csv')
+mu_signals = pd.read_csv(mu_GT_path, sep=';', header=None)
+mu_signals.set_index(0, inplace=True)
+mu_signals = mu_signals.loc[signals.index, :] # take only those with the electron
+
+# data does not match between GT and data without it. Rebuild it and use it:
+signals = mu_signals + e_signals
 
 ################################################################################
 # Adventure begins
 ################################################################################
 seed(2023) # results reconstruction available
+nphotons_min = 5 # min photons a signal needs to have in a moment to be able of 
+                 # recognising the electron
 
 for idx in signals.index: 
+    print(idx)
     signal = signals.loc[idx, t_idx].copy()
     signal = np.array(signal).reshape(-1)
     
-    model = decompose()
+    e_signal = np.array(e_signals.loc[idx, t_idx].copy()).reshape(-1)
     
-    model.manualFit(signal, t, n = 300) # fit A0
-    print('Manual, A0: ', model.A0)
-    signal_manualFit = model.calculateSignalFit(t)
-    e_manualSignal = model.extractElectronSignal(signal, t)
+    # check electron signal is high enough to use it
+    # We do this to avoid a higher error in the quality measures
+    check = np.array(np.where(e_signal > 5)) 
+    if not (check.size > 0): continue
     
-    model.automaticFit(signal, t)
-    print('Automatic, A0: ', model.A0, ', tau: ', model.tau, '\n')
-    signal_automFit = model.calculateSignalFit(t)
-    e_automSignal = model.extractElectronSignal(signal, t)
+    model = decompose(t, signal, e_signal)
     
-    fig, axs = plt.subplots(1,2, figsize = (10,5))
+    # # 1st method
+    # model.manualFit(n = 300) # fit A0
+    # signal_manualFit = model.fit_signal
+    # model.extractElectronSignal()
+    # e_manualSignal = model.decomp_signal
     
-    axs[0].plot(t, signal, c='g', label='Original')
-    axs[0].plot(t, signal_manualFit, c='b', label='Fit')
-    axs[0].plot(t, e_manualSignal, c='r', label='Electron decomposed')
-    axs[0].set_xlabel('Time, t (ns)')
-    axs[0].set_ylabel('# Photons')
-    axs[0].set_title('Fitting A0, tau = 1600(ns)')
-    axs[0].legend(loc='best')
+    # 2nd method
+    model.automaticFit()
+    signal_automFit = model.fit_signal
+    model.extractElectronSignal()
+    e_automSignal = model.decomp_signal
     
-    axs[1].plot(t, signal, c='g', label='Original')
-    axs[1].plot(t, signal_automFit, c='b', label='Fit')
-    axs[1].plot(t, e_automSignal, c='r', label='Electron decomposed')
-    axs[1].set_xlabel('Time, t (ns)')
-    axs[1].set_ylabel('# Photons')
-    axs[1].set_title('Fitting both A0 and tau')
-    axs[1].legend(loc='best')
-    
-    plt.tight_layout()
-    plt.show()
+    model.plotSignals()
