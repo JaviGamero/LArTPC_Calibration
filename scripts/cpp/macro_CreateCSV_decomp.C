@@ -37,11 +37,16 @@ void macro_CreateCSV_decomp()
     file.open(strcat(data_preproc, "??.csv"));
     string isclosed="False";
 
-	int ntree = 0;
+	int ntree_number = 0;
 
   	for (const auto &folder: directory_iterator(dir)) // iterate above folders
   	{
   		if (folder.path() == skip) continue; // skip .DS_Store/ folder
+
+		string ntree = folder.path();
+		ntree = ntree.substr(63, ntree.length()); // take folder name
+		ntree = ntree.substr(ntree.find("_")+1, ntree.length()); // take tree number
+
 	  	for (const auto &treePath: directory_iterator(folder)) // above trees in folder
 	  	{
 	  		// =================================================================
@@ -99,15 +104,15 @@ void macro_CreateCSV_decomp()
 					for (int j=0; j<=dim+1; j++) // finishes in Nbins+1, if there are N bins, there will be N+1 points
 					{
 						// choose the particle --> _e, _mu
-						timeSerieVUV[j] = hVUV_mu -> GetBinContent(j);
-						timeSerieVIS[j] = hVIS_mu -> GetBinContent(j);
+						timeSerieVUV[j] = hVUV_e -> GetBinContent(j);
+						timeSerieVIS[j] = hVIS_e -> GetBinContent(j);
 						idealTimeSerie[j] = timeSerieVIS[j] + timeSerieVUV[j];
 					}   
 
 					for (int j=0; j<dim; j++)
                     	x[j] = X->GetBinCenter(j+1); // Bin indexes start at 1
 
-					string idx = to_string(ntree) + "_" + to_string(event);
+					string idx = ntree + "_" + to_string(event);
                 	AddToCSV_T(timeSerieVIS, dim, idx, file);
 					
 					hVUV_mu->Reset();	
@@ -144,8 +149,8 @@ void macro_CreateCSV_decomp()
 		    delete tree;
 	    	delete fh;
 
-			ntree++;
-			cout << "Tree: " << ntree << endl;
+			ntree_number++;
+            cout << "Trees completed: " << ntree_number << endl;
 
 		} // loop over .roots in a folder
 		

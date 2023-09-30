@@ -69,7 +69,7 @@ void macro_CreateCSV()
 
     auto start = high_resolution_clock::now();
 
-    int ntree = 0; 
+    int ntree_number = 0;
 
     strcat(data_preproc, "??.csv");
     ofstream file; // file where all temporary series will be written
@@ -79,6 +79,11 @@ void macro_CreateCSV()
   	for (const auto &folder: directory_iterator(data_raw)) // iterate above folders
   	{
   		if (folder.path() == skip) continue; // skip .DS_Store/ folder (only macOS)
+        
+        string ntree = folder.path();
+		ntree = ntree.substr(63, ntree.length()); // take folder name
+		ntree = ntree.substr(ntree.find("_")+1, ntree.length()); // take tree number
+
 	  	for (const auto &treePath: directory_iterator(folder)) // above trees in folder
 	  	{
             // =================================================================
@@ -208,8 +213,8 @@ void macro_CreateCSV()
                 */
 
                 // to write all series in one csv
-                string idx = to_string(ntree) + "_" + to_string(event);
-                AddToCSV_T(timeSerieVIS, dim, idx, file);
+                string idx = ntree + "_" + to_string(event);
+                AddToCSV_T(idealTimeSerie, dim, idx, file);
 
                 // if (ntree==0 && isclosed == "False") # this loop is for x axis
                 // {
@@ -301,8 +306,8 @@ void macro_CreateCSV()
                 // }
             
             } // end of main loop 
-            ntree++;
-            cout << "Tree: " << ntree << endl;
+            ntree_number++;
+            cout << "Trees completed: " << ntree_number << endl;
 
             delete tree; 
             delete fh;
