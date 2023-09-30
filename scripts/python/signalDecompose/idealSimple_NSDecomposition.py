@@ -32,7 +32,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from decompose import greedyDecomposition as decompose
+from decompose import greedyDecomposition as decompose, quality
 from random import seed
 
 ################################################################################
@@ -75,30 +75,32 @@ seed(2023) # results reconstruction available
 nphotons_min = 5 # min photons a signal needs to have in a moment to be able of 
                  # recognising the electron
 
+r = [] # list of relative erros
+
 for idx in signals.index: 
     print(idx)
     signal = signals.loc[idx, t_idx].copy()
     signal = np.array(signal).reshape(-1)
     
     e_signal = np.array(e_signals.loc[idx, t_idx].copy()).reshape(-1)
+    mu_signal = np.array(mu_signals.loc[idx, t_idx].copy()).reshape(-1)
     
     # check electron signal is high enough to use it
     # We do this to avoid a higher error in the quality measures
     check = np.array(np.where(e_signal > 5)) 
     if not (check.size > 0): continue
     
-    model = decompose(t, signal, e_signal)
+    model = decompose(t, signal, e_signal) # if GT added, different plot
+    model.automaticFit() # fit the signal 
+    model.extractElectronSignal() # substract the electron signal
+    e_signal_calc = model.decomp_signal
+    # model.plotSignals() # plot the results
     
-    # # 1st method
-    # model.manualFit(n = 300) # fit A0
-    # signal_manualFit = model.fit_signal
-    # model.extractElectronSignal()
-    # e_manualSignal = model.decomp_signal
-    
-    # 2nd method
-    model.automaticFit()
-    signal_automFit = model.fit_signal
+    model_GT = decompose(t, mu_signal)
+    model_GT.automaticFit() # calculate tau 
     model.extractElectronSignal()
-    e_automSignal = model.decomp_signal
     
-    model.plotSignals()
+    q = quality(e_signal, e_signal_calc)
+    r.append(q._relativeError(model_GT.tau, model.tau)*100)
+    
+print("Mean relative error: ", np.mean(r), "%") # 5% of relative error --> perfect

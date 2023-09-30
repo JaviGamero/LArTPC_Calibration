@@ -120,7 +120,8 @@ class greedyDecomposition():
             
             axs.plot(self.t, self.signal, c='g', label='Original')
             axs.plot(self.t, self.fit_signal, c='b', label='Fit')
-            axs.plot(self.t, self.decomp_signal, c='r', label='Electron decomposed')
+            if (np.array(self.decomp_signal).size > 0): 
+                axs.plot(self.t, self.decomp_signal, c='r', label='Electron decomposed')
             axs.set_xlabel('Time, t (ns)')
             axs.set_ylabel('# Photons')
             axs.set_title('Fitting A0, tau = 1450(ns)')
@@ -129,3 +130,11 @@ class greedyDecomposition():
         
         plt.tight_layout()
         plt.show() 
+        
+class quality(): 
+    def __init__(self, GT, decomposed):
+        self.GT = GT
+        self.decomposed = decomposed
+        
+    def _relativeError(self, actual, calc):    
+        return np.abs(actual-calc) / actual
