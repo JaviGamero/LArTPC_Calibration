@@ -31,7 +31,24 @@ from ETL import ETL_Techniques as etl_tech
 # Functions
 ################################################################################
 
-# empty by the moment
+def signal_hot(X, Y, n=3):
+    
+    y_max = [np.max(y) for y in Y] # max y in each pmt
+    idxs = [j for j in np.argsort(y_max)[-n:]] #  take the n hottest pmt
+    y_hot = [Y[i] for i in idxs] # 3 signals alone
+    y_hot = np.sum([y for y in y_hot], axis=0) # 3 signals added
+    
+    return X[idxs[0]], y_hot
+
+def addToCSV(f, y, dim, idx):
+    f.write(idx + ';')
+    
+    for i in range(dim-1): 
+        f.write(str(y[i]) + ';')
+        
+    f.write(str(y[dim-1]) + '\n')
+    
+    
 
 ################################################################################
 # General constants
@@ -42,7 +59,7 @@ shiftStamp = 135. # ns
 
 branches_to_activate = ["SimPhotonsLiteVUV", "SimPhotonsLiteVIS", 
                         "SignalsDigi", "SignalsDeco", "OpChDigi",
-                        "StampTime", "StampTimeDeco",
+                        "OpChDeco", "StampTime", "StampTimeDeco",
                         "stepX", "dE", "PDGcode", "eventID"]
 
 # PMT IDs
@@ -50,6 +67,8 @@ PMTs = np.loadtxt(os.path.join(os.getcwd(), "data/PMT_IDs.txt"))
 IdPMTs_L = [int(i) for i in PMTs if (i%2 == 0)] # even PMT IDs, left (X<0)
 IdPMTs_R = [int(i) for i in PMTs if (i%2 != 0)] # odd PMT IDs, right (X>0)
 
+output = open("data_preproc/???.csv", 'w')
+n = 0
 ################################################################################
 # MAIN LOOP
 ################################################################################
@@ -61,9 +80,11 @@ for folder in os.listdir(ROOT):
     PATH += "/"
     
     if (PATH == skip): continue # skip .DS_Store/ mac directory
+    ntree = folder[-3:]
     
     for f in os.listdir(PATH):
         file = os.path.join(PATH, f) # root file
+    
         
         # another way to read variables
         with uproot.open(file) as rootfile: 
@@ -71,6 +92,8 @@ for folder in os.listdir(ROOT):
             
             branches = tree.arrays(branches_to_activate, library="np") 
             for entry in range(len(branches["eventID"])): # entries loop
+                
+                event = branches["eventID"][entry]
                 
                 ################################################################
                 # LIGHT
@@ -92,46 +115,71 @@ for folder in os.listdir(ROOT):
                 # ADC SIGNALS
                 ################################################################
                 # Calculate raw and deco signal (DIGITALIZED and DECONVOLUTIONED)
-                x_raw, y_raw = [], []
-                x_deco, y_deco = [], []
+                
+                X_raw, Y_raw = [], []
+                # DIGITALIZED
                 for j in range(len(branches["OpChDigi"][entry])): # above PDs
-                    if j not in etl.sel_PMTsID: continue
-                    
-                    # DIGITALIZED
+                    if (j not in etl.sel_PMTsID): continue
+
                     signalDigi = etl.getRawSignal(branches["SignalsDigi"][entry], 
                                                   branches["StampTime"][entry], 
-                                                  j)                    
-                    x_raw += signalDigi[0]
-                    y_raw += signalDigi[1]
+                                                  j)
+                    
+                    if len(signalDigi[1]) == 0: continue
+                        
+                    X_raw.append(signalDigi[0])
+                    Y_raw.append(signalDigi[1])
+                    
+                x_raw_hot, y_raw_hot = signal_hot(X_raw, Y_raw)
                             
-                    # DECONVOLUTIONED
+                # DECONVOLUTIONED
+                X_deco, Y_deco = [], []
+                for j in range(len(branches["OpChDeco"][entry])): # above PDs
                     signalDeco = etl.getDecoSignal(branches["SignalsDeco"][entry], 
                                                   branches["StampTimeDeco"][entry], 
                                                   j)
-                    x_deco += signalDeco[0]
-                    y_deco += signalDeco[1]
+                    
+                    if len(signalDeco[1]) == 0: continue
+                    
+                    X_deco.append(signalDeco[0])
+                    Y_deco.append(signalDeco[1])                    
+                    
+                x_deco_hot, y_deco_hot = signal_hot(X_deco, Y_deco)
                 
+                if (len(x_deco_hot) != 5050 or len(y_deco_hot) != 5050): 
+                    print(str(n) + '_' + str(event))
+                    print(len(x_deco_hot), len(y_deco_hot))
+                
+                # idx = 
+                addToCSV(output, y_deco_hot, len(y_deco_hot), 
+                         str(ntree) + '_' + str(event))
+                    
                 ################################################################
                 # PLOT
                 ################################################################
-                fig, axs = plt.subplots(1,3,figsize=(18, 8))
-                axs[0].hist(LightSignal, 1000, [0,10000], color = 'b', label='Total')
-                axs[0].set_xlabel("Time, t (ns)")
-                axs[0].set_ylabel("# Photons")
-                axs[0].set_title("Light Signal (ideal)")
-                axs[0].legend(loc='best')
+                # fig, axs = plt.subplots(1,3,figsize=(18, 8))
+                # axs[0].hist(LightSignal, 1000, [0,10000], color = 'g', label='Total')
+                # axs[0].set_xlabel("Time, t (ns)")
+                # axs[0].set_ylabel("# Photons")
+                # axs[0].set_title("Light Signal (ideal)")
+                # axs[0].legend(loc='best')
                 
-                axs[1].plot(x_raw, y_raw, color = 'b', label='Total')
-                axs[1].set_xlabel("Time, t (ns)")
-                axs[1].set_ylabel("Digitalized signal, y_raw (ADC)")
-                axs[1].set_title("Digitalized signal")
-                axs[1].legend(loc='best')
+                # axs[1].plot(x_raw_hot, y_raw_hot, color = 'g', label='Total')
+                # axs[1].set_xlabel("Time, t (ns)")
+                # axs[1].set_ylabel("Digitalized signal, y_raw (ADC)")
+                # axs[1].set_title("Digitalized signal")
+                # axs[1].legend(loc='best')
                 
-                axs[2].plot(x_deco, y_deco, color = 'b', label='Total')
-                axs[2].set_xlabel("Time, t (ns)")
-                axs[2].set_ylabel("Deconvolutioned signal, y_deco (ADC)")
-                axs[2].set_title("Deconvolutioned signal")
-                axs[2].legend(loc='best')
+                # axs[2].plot(x_deco_hot, y_deco_hot, color = 'g', label='Total')
+                # axs[2].set_xlabel("Time, t (ns)")
+                # axs[2].set_ylabel("Deconvolutioned signal, y_deco (ADC)")
+                # axs[2].set_title("Deconvolutioned signal")
+                # axs[2].legend(loc='best')
                 
-                plt.tight_layout()
-                plt.show()
+                # plt.tight_layout()
+                # plt.show()
+            
+            n+=1
+            print('Tree: ', n)
+
+output.close()

@@ -79,7 +79,7 @@ class ETL_Techniques:
         # this is for one PMT
         x, y = [], []
         
-        for k in range(len(signalDigi[pmt])): 
+        for k in range(len(signalDigi[pmt])-1): 
             rawADC = signalDigi[pmt][k] - self.baseLine
             tDigi = self.samplingTime*k + stampTime[pmt]*1000 - self.shiftStamp
             
@@ -93,11 +93,11 @@ class ETL_Techniques:
         # this is for one PMT
         x, y = [], []
         
-        for k in range(len(signalDeco[pmt])): 
+        for k in range(len(signalDeco[pmt])-1):
             decoADC = signalDeco[pmt][k]/500
             tDeco = self.samplingTime*k + stampTime[pmt]*1000 - self.shiftStamp
             
-            if (tDeco > -1000) and (tDeco<11000):
+            if (tDeco > -100) and (tDeco<10000):
                 x.append(tDeco)
                 y.append(decoADC)
                 
