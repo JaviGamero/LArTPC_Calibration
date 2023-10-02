@@ -14,7 +14,8 @@ import os
 import sys 
 
 # path to python main folder in this project
-libraries = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir)) 
+libraries = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)), 
+                                         os.pardir)) 
 sys.path.append(libraries) 
 
 ################################################################################
@@ -93,12 +94,13 @@ for folder in os.listdir(ROOT):
                                                                branches["E"][entry])
                 
                 # and take all the energydep by all the particles
-                # totalEnergyDep = etl.getTotalEnergyDep(branches["energydep"][entry])
+                totalEnergyDep = etl.getTotalEnergyDep(branches["energydep"][entry], 
+                                                       branches["PDGcode"][entry])
                 
                 if dE_e < 0.02: continue
 
                 dE.append(dE_e) # MeV
-                # total_dE.append(totalEnergyDep) # MeV
+                total_dE.append(totalEnergyDep) # MeV
                 E.append(E_e*1e+03) # GeV to MeV
         
         n_tree += 1
@@ -120,17 +122,27 @@ dE_s = np.array(dE).reshape(-1,1)
 E_s = E_s.reshape(-1)
 dE_s = dE_s.reshape(-1)
 
-data = {'E': E_s, 'dE': dE_s}
-# data = {'dE': dE_s, 'total_dE': total_dE}
+data = {'dE': dE_s, 'energydep': total_dE}
 
 fig = plt.figure(figsize=(5,5))
-
 # common_norm such that the total area of the histogram is 1 --> normalised
-sns.histplot(data=data, stat='density', common_norm=True, multiple='stack', bins=500)
+# sns.histplot(data=data, stat='density', common_norm=True, multiple='stack', bins=500)
+plt.hist(dE_s, bins=500, label='dE', alpha=0.7)
+plt.hist(E_s, bins=500, label='E', alpha=0.7)
+plt.legend(loc='best')
+plt.xlim(2,55)
+plt.ylim(0,800)
+plt.xlabel("Energy, E (MeV)")
+plt.ylabel("Count") 
+
+fig, axs = plt.subplots(1,1, figsize=(5,5))
+plt.hist(dE_s, bins=500, label='dE', alpha=0.7)
+plt.hist(total_dE, bins=500, label='energydep', alpha=0.7)
+plt.legend(loc='best')
 # plt.xlim(0.02,0.09) # when normalised
 plt.xlim(2,55)
+plt.ylim(0,400)
 plt.xlabel("Energy, E (MeV)")
-plt.ylabel("Density") 
+plt.ylabel("Count") 
 
-plt.tight_layout()
 plt.show()

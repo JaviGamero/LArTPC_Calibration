@@ -48,11 +48,12 @@ class ETL_Techniques:
             
             return dE_e, E_e, startX_e
         
-    def getTotalEnergyDep(self, energydep):
-        # this function calculates the sum of the enerhy deposition by all the 
-        # particles
+    def getTotalEnergyDep(self, energydep, PDGcode):
+        # this function calculates the sum of the energy deposition for a 
+        # particle
         s = 0
-        for j in range(len(energydep)): 
+        for j in range(len(PDGcode)): 
+            if PDGcode[j] != self.particlePDG: continue # take the particle 
             s += np.sum(energydep[j])
             
         return s
