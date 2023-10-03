@@ -128,7 +128,7 @@ class greedyDecomposition():
                 axs.plot(self.t, self.decomp_signal, c='r', label='Electron decomposed')
             axs.set_xlabel('Time, t (ns)')
             axs.set_ylabel('# Photons')
-            axs.set_title('Fitting A0, tau = 1450(ns)')
+            # axs.set_title('Fitting')
             axs.legend(loc='best')   
 
         
