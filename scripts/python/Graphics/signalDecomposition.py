@@ -1,11 +1,8 @@
 """
-SignalComparation.py
+signalDecomposition.py
 Author: Javier Gamero Muñoz
 
-This file will plot in a figure the most important signals: 
-    - Number of photons histogram (in the real world it cannot be obtain)
-    - Time serie of the digitalized signal (this exists in the real world)
-    - Time serie of the deconvolutioned signal (this exists in the real world)
+This script plots in two figures the signals of the mu and e added and separated
 """
 
 ################################################################################

@@ -48,6 +48,16 @@ class ETL_Techniques:
             
             return dE_e, E_e, startX_e
         
+    def getTotalEnergyDep(self, energydep, PDGcode):
+        # this function calculates the sum of the energy deposition for a 
+        # particle
+        s = 0
+        for j in range(len(PDGcode)): 
+            if PDGcode[j] != self.particlePDG: continue # take the particle 
+            s += np.sum(energydep[j])
+            
+        return s
+        
     def _calculateIdPMTs(self, X0):
         if X0 < 0: 
             self.sel_PMTsID = self.IdPMTs_L
@@ -69,7 +79,7 @@ class ETL_Techniques:
         # this is for one PMT
         x, y = [], []
         
-        for k in range(len(signalDigi[pmt])): 
+        for k in range(len(signalDigi[pmt])-1): 
             rawADC = signalDigi[pmt][k] - self.baseLine
             tDigi = self.samplingTime*k + stampTime[pmt]*1000 - self.shiftStamp
             
@@ -83,11 +93,11 @@ class ETL_Techniques:
         # this is for one PMT
         x, y = [], []
         
-        for k in range(len(signalDeco[pmt])): 
+        for k in range(len(signalDeco[pmt])-1):
             decoADC = signalDeco[pmt][k]/500
             tDeco = self.samplingTime*k + stampTime[pmt]*1000 - self.shiftStamp
             
-            if (tDeco > -1000) and (tDeco<11000):
+            if (tDeco > -100) and (tDeco<10000):
                 x.append(tDeco)
                 y.append(decoADC)
                 
