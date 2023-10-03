@@ -150,9 +150,11 @@ for folder in os.listdir(ROOT):
                     print(str(n) + '_' + str(event))
                     print(len(x_deco_hot), len(y_deco_hot))
                 
-                # idx = 
-                addToCSV(output, y_deco_hot, len(y_deco_hot), 
-                         str(ntree) + '_' + str(event))
+                # addToCSV(output, y_deco_hot, len(y_deco_hot), 
+                #          str(ntree) + '_' + str(event))
+                
+                addToCSV(output, x_deco_hot, len(x_deco_hot), '0')
+                input("Time array loaded. Stop.")
                     
                 ################################################################
                 # PLOT
