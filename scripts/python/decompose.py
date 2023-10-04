@@ -1,7 +1,8 @@
-from random import randint
+from random import randint, seed
 from scipy.optimize import curve_fit
 import numpy as np 
 import matplotlib.pyplot as plt 
+from sklearn.model_selection import train_test_split
 
 class greedyDecomposition(): 
     """
@@ -136,7 +137,7 @@ class greedyDecomposition():
         plt.show() 
         
 class quality(): 
-    def __init__(self, t, GT_signal, decomp_signal):
+    def __init__(self, t, GT_signal=[], decomp_signal=[]):
         self.t = t
         self.GT_signal = GT_signal
         self.decomp_signal = decomp_signal
@@ -148,8 +149,45 @@ class quality():
         idx_max_GT = np.argmax(self.GT_signal)
         idx_max_decomp = np.argmax(self.decomp_signal)
         
-        if np.abs(self.t[idx_max_decomp] - self.t[idx_max_GT]) < max_time_gap: 
+        if np.abs(self.t[idx_max_decomp] - self.t[idx_max_GT]) <= max_time_gap: 
             return True
         
         else: return False
         
+    def _score_efound(self, GT, pred, max_time_gap = 50):
+        idx_max_GT = np.argmax(GT)
+        idx_max_decomp = np.argmax(pred)
+        
+        if np.abs(self.t[idx_max_decomp] - self.t[idx_max_GT]) <= max_time_gap: 
+            return True
+        
+        else: return False
+        
+    def cross_validate(self, estimator, X, y, k=5, test_size=0.2, 
+                       random_state = 2023): 
+        
+        seed(random_state)
+        r_train = [] # score in train
+        r_test = [] # score in test
+        
+        for i in range(k): 
+            X_train, X_test, y_train, y_test = train_test_split(X, y,
+                                                                test_size=test_size)
+            
+            estimator.fit(X_train, y_train)
+            y_pred_train = estimator.predict(X_train)
+            y_pred = estimator.predict(X_test)
+            
+            e_found=0
+            for GT, pred in zip(y_test, y_pred): 
+                if self._score_efound(GT, pred): e_found+=1
+            r_test.append(e_found/y_pred.shape[0])
+            
+            e_found_train=0
+            for GT, pred in zip(y_train, y_pred_train): 
+                if self._score_efound(GT, pred): e_found_train+=1
+            r_train.append(e_found_train/y_train.shape[0])
+            
+            print('Iterations of cv: {0}/{1}'.format(i+1,k))
+            
+        return r_train, r_test
