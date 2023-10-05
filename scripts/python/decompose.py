@@ -163,6 +163,31 @@ class quality():
         
         else: return False
         
+    def getScore(self, estimator, X, y, test_size=0.2, random_state=2023, 
+                 train_result=False):
+        X_train, X_test, y_train, y_test = train_test_split(X, y, 
+                                                            test_size=test_size, 
+                                                            random_state=random_state)
+        
+        estimator.fit(X_train, y_train)
+        y_pred_train = estimator.predict(X_train)
+        y_pred = estimator.predict(X_test)
+        
+        e_found=0
+        for GT, pred in zip(y_test, y_pred): 
+            if self._score_efound(GT, pred): e_found+=1
+        r_test = e_found/y_pred.shape[0]
+        
+        e_found_train=0
+        for GT, pred in zip(y_train, y_pred_train): 
+            if self._score_efound(GT, pred): e_found_train+=1
+        r_train = e_found_train/y_train.shape[0]
+        
+        return r_train, r_test
+        # if train_result: 
+        
+            
+        
     def cross_validate(self, estimator, X, y, k=5, test_size=0.2, 
                        random_state = 2023): 
         
@@ -171,22 +196,11 @@ class quality():
         r_test = [] # score in test
         
         for i in range(k): 
-            X_train, X_test, y_train, y_test = train_test_split(X, y,
-                                                                test_size=test_size)
+            tr, tst = self.getScore(estimator, X, y, test_size=test_size,
+                                    random_state=random_state)
             
-            estimator.fit(X_train, y_train)
-            y_pred_train = estimator.predict(X_train)
-            y_pred = estimator.predict(X_test)
-            
-            e_found=0
-            for GT, pred in zip(y_test, y_pred): 
-                if self._score_efound(GT, pred): e_found+=1
-            r_test.append(e_found/y_pred.shape[0])
-            
-            e_found_train=0
-            for GT, pred in zip(y_train, y_pred_train): 
-                if self._score_efound(GT, pred): e_found_train+=1
-            r_train.append(e_found_train/y_train.shape[0])
+            r_train.append(tr)
+            r_test.append(tst)
             
             print('Iterations of cv: {0}/{1}'.format(i+1,k))
             
