@@ -189,7 +189,7 @@ class quality():
             
         
     def cross_validate(self, estimator, X, y, k=5, test_size=0.2, 
-                       random_state = 2023): 
+                       verbose=1, random_state = 2023): 
         
         seed(random_state)
         r_train = [] # score in train
@@ -202,6 +202,6 @@ class quality():
             r_train.append(tr)
             r_test.append(tst)
             
-            print('Iterations of cv: {0}/{1}'.format(i+1,k))
+            if verbose==1: print('Iterations of cv: {0}/{1}'.format(i+1,k))
             
         return r_train, r_test
