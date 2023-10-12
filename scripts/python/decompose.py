@@ -33,6 +33,7 @@ class greedyDecomposition():
         self.GT_signal = GT_signal
         self.fit_signal = []
         self.decomp_signal = []
+        self.max_error = 10
 
     def decayEq(self, t, A0, tau): 
         return A0 * np.exp(-t/tau)
@@ -98,6 +99,13 @@ class greedyDecomposition():
         e_signal[np.where(e_signal<0)] = 0 # negative values to 0
         
         self.decomp_signal = e_signal
+        
+    def _addNoiseToFitSignal(self): 
+        np.random.seed(2023)
+        withNoise = [i+randint(-self.max_error//2,self.max_error//2) for i in self.fit_signal]
+        withNoise = np.array(withNoise)
+        withNoise[withNoise<0]=0
+        self.fit_signal = withNoise
     
     def plotSignals(self):
         if (np.array(self.GT_signal).size > 0): 
