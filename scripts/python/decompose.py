@@ -1,7 +1,8 @@
-from random import randint
+from random import randint, seed
 from scipy.optimize import curve_fit
 import numpy as np 
 import matplotlib.pyplot as plt 
+from sklearn.model_selection import train_test_split
 
 class greedyDecomposition(): 
     """
@@ -32,6 +33,7 @@ class greedyDecomposition():
         self.GT_signal = GT_signal
         self.fit_signal = []
         self.decomp_signal = []
+        self.max_error = 10
 
     def decayEq(self, t, A0, tau): 
         return A0 * np.exp(-t/tau)
@@ -97,6 +99,13 @@ class greedyDecomposition():
         e_signal[np.where(e_signal<0)] = 0 # negative values to 0
         
         self.decomp_signal = e_signal
+        
+    def _addNoiseToFitSignal(self): 
+        np.random.seed(2023)
+        withNoise = [i+randint(-self.max_error//2,self.max_error//2) for i in self.fit_signal]
+        withNoise = np.array(withNoise)
+        withNoise[withNoise<0]=0
+        self.fit_signal = withNoise
     
     def plotSignals(self):
         if (np.array(self.GT_signal).size > 0): 
@@ -136,7 +145,7 @@ class greedyDecomposition():
         plt.show() 
         
 class quality(): 
-    def __init__(self, t, GT_signal, decomp_signal):
+    def __init__(self, t, GT_signal=[], decomp_signal=[]):
         self.t = t
         self.GT_signal = GT_signal
         self.decomp_signal = decomp_signal
@@ -148,8 +157,59 @@ class quality():
         idx_max_GT = np.argmax(self.GT_signal)
         idx_max_decomp = np.argmax(self.decomp_signal)
         
-        if np.abs(self.t[idx_max_decomp] - self.t[idx_max_GT]) < max_time_gap: 
+        if np.abs(self.t[idx_max_decomp] - self.t[idx_max_GT]) <= max_time_gap: 
             return True
         
         else: return False
         
+    def _score_efound(self, GT, pred, max_time_gap = 50):
+        idx_max_GT = np.argmax(GT)
+        idx_max_decomp = np.argmax(pred)
+        
+        if np.abs(self.t[idx_max_decomp] - self.t[idx_max_GT]) <= max_time_gap: 
+            return True
+        
+        else: return False
+        
+    def getScore(self, estimator, X, y, test_size=0.2, random_state=2023, 
+                 train_result=False):
+        X_train, X_test, y_train, y_test = train_test_split(X, y, 
+                                                            test_size=test_size, 
+                                                            random_state=random_state)
+        
+        estimator.fit(X_train, y_train)
+        y_pred_train = estimator.predict(X_train)
+        y_pred = estimator.predict(X_test)
+        
+        e_found=0
+        for GT, pred in zip(y_test, y_pred): 
+            if self._score_efound(GT, pred): e_found+=1
+        r_test = e_found/y_pred.shape[0]
+        
+        e_found_train=0
+        for GT, pred in zip(y_train, y_pred_train): 
+            if self._score_efound(GT, pred): e_found_train+=1
+        r_train = e_found_train/y_train.shape[0]
+        
+        return r_train, r_test
+        # if train_result: 
+        
+            
+        
+    def cross_validate(self, estimator, X, y, k=5, test_size=0.2, 
+                       verbose=1, random_state = 2023): 
+        
+        seed(random_state)
+        r_train = [] # score in train
+        r_test = [] # score in test
+        
+        for i in range(k): 
+            tr, tst = self.getScore(estimator, X, y, test_size=test_size,
+                                    random_state=random_state)
+            
+            r_train.append(tr)
+            r_test.append(tst)
+            
+            if verbose==1: print('Iterations of cv: {0}/{1}'.format(i+1,k))
+            
+        return r_train, r_test
