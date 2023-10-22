@@ -6,6 +6,7 @@
 /template
 DigitalisedSignal.csv 
 DeconvolvedSignal.csv
+DeconvolvedSignal2.csv
 
 # python, jupyter notebooks checkpoints 
 .ipynb_checkpoints
