@@ -7,6 +7,7 @@
 DigitalisedSignal.csv 
 DeconvolvedSignal.csv
 DeconvolvedSignal2.csv
+DeconvolvedSignal_us.csv
 
 # python, jupyter notebooks checkpoints 
 .ipynb_checkpoints
