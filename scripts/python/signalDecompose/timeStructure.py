@@ -58,7 +58,7 @@ ideal_t = pd.read_csv(PATH, sep=';', header=None)
 ideal_t.set_index(0,inplace=True)
 
 # Cut and stay with slow component
-t0 = 200 # (ns), moment to start considering the slow component, EXPERIMENTAL
+t0 = 150 # (ns), moment to start considering the slow component, EXPERIMENTAL
 i_t_idx = np.where(ideal_t>t0)[1]
 d_t_idx = np.where(decon_t>t0)[1]
 ideal_t = np.array(ideal_t.iloc[0, i_t_idx]).reshape(-1) #1D array from t0 and on
