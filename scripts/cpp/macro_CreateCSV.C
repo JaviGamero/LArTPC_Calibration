@@ -269,41 +269,41 @@ void macro_CreateCSV()
 		        // DECONVOLVED SIGNAL
 		        // =============================================================
 
-                // for(int k=0; k<fOpChDeco->size(); k++) // for every photon detector
-		      	// {
-                //     double max_deco=-1;
+                for(int k=0; k<fOpChDeco->size(); k++) // for every photon detector
+		      	{
+                    double max_deco=-1;
 
-                //     //selecting the PMTs in the array we want to use
-				// 	it = find (selected_pmtid.begin(), selected_pmtid.end(), fOpChDigi->at(k));
-				// 	if (it == selected_pmtid.end()) continue;
+                    //selecting the PMTs in the array we want to use
+					it = find (selected_pmtid.begin(), selected_pmtid.end(), fOpChDigi->at(k));
+					if (it == selected_pmtid.end()) continue;
 
-                //     // This loop is for DECONVOLVED/RECONSTRUCTED signal
-				// 	x_deco.clear(); y_deco.clear();    				
-				// 	for(int j=0; j<fSignalsDeco->at(k).size(); j++)
-				// 	{
-		  		// 		double decoADC = fSignalsDeco->at(k).at(j)/500.; 
-		  		// 		double t = fSamplingTime*j+fStampTimeDeco->at(k)*1000-shiftStamp; 
+                    // This loop is for DECONVOLVED/RECONSTRUCTED signal
+					x_deco.clear(); y_deco.clear();    				
+					for(int j=0; j<fSignalsDeco->at(k).size(); j++)
+					{
+		  				double decoADC = fSignalsDeco->at(k).at(j)/500.; 
+		  				double t = fSamplingTime*j+fStampTimeDeco->at(k)*1000-shiftStamp; 
 		  
-		  		// 		if(max_deco < decoADC) max_deco = decoADC; // to limit the plot
+		  				if(max_deco < decoADC) max_deco = decoADC; // to limit the plot
 		  
-		  		// 		if(t>-1000 && t<11000)
-		  		// 		{
-		    	// 			x_deco.push_back(t);
-		    	// 			y_deco.push_back(decoADC);
-		  		// 		}	    
-				// 	}	  
+		  				if(t>-1000 && t<11000)
+		  				{
+		    				x_deco.push_back(t);
+		    				y_deco.push_back(decoADC);
+		  				}	    
+					}	  
 
-                //     const int dim = y_deco.size();
-                //     if(!(dim>0)) continue;
+                    const int dim = y_deco.size();
+                    if(!(dim>0)) continue;
 
-                //     int y[dim];
-                //     for (int j=0; j<dim; j++)
-                //         y[j] = y_deco[j];
+                    int y[dim];
+                    for (int j=0; j<dim; j++)
+                        y[j] = y_deco[j];
 
-                //     string idx = to_string(ntree) + "_" + to_string(event);
-                //     AddToCSV_T(y, dim, idx, file); 
+                    string idx = to_string(ntree) + "_" + to_string(event);
+                    // AddToCSV_T(y, dim, idx, file); 
 	        
-                // }
+                }
             
             } // end of main loop 
             ntree_number++;
