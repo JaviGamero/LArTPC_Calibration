@@ -213,3 +213,21 @@ class quality():
             if verbose==1: print('Iterations of cv: {0}/{1}'.format(i+1,k))
             
         return r_train, r_test
+    
+class calibration(): 
+    def __init__(self, signal_e, t, multiple=True):
+        self.signal_e = signal_e
+        self.t = t
+        self.multiple = multiple
+        
+    def _integrateSignal(self):
+        if self.multiple:            
+            r = []
+            for serie in self.signal_e: 
+                r.append(np.trapz(serie, self.t))
+                
+            return r
+
+        else: 
+            r = np.trapz(self.signal_e, self.t)
+            return r
