@@ -129,10 +129,10 @@ class ETL_Techniques:
                 hist_VIS = np.histogram(signal_e_VIS, 1000, [0,10000])
                 list_e.append(hist_VUV[0] + hist_VIS[0])
                 
-                t = np.arange(0,10000,10)
-                plt.figure(idx)
-                plt.plot(t, hist_VUV[0] + hist_VIS[0])
-                plt.show()
+                # t = np.arange(0,10000,10)
+                # plt.figure(idx)
+                # plt.plot(t, hist_VUV[0] + hist_VIS[0])
+                # plt.show()
                 
                 signal_e_VIS, signal_e_VUV = [], []
                 signal_mu_VIS, signal_mu_VUV = [], []
