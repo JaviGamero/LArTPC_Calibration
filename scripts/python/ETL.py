@@ -114,7 +114,7 @@ class ETL_Techniques:
         list_e, list_mu = [], []
         signal_e_VIS, signal_e_VUV = [], []
         signal_mu_VIS, signal_mu_VUV = [], []
-        pre_ID=0
+        pre_ID=1
         
         for entry in range(len(eventID)): # entries loop
             if (pre_ID != eventID[entry]): 
@@ -129,11 +129,16 @@ class ETL_Techniques:
                 hist_VIS = np.histogram(signal_e_VIS, 1000, [0,10000])
                 list_e.append(hist_VUV[0] + hist_VIS[0])
                 
+                t = np.arange(0,10000,10)
+                plt.figure(idx)
+                plt.plot(t, hist_VUV[0] + hist_VIS[0])
+                plt.show()
+                
                 signal_e_VIS, signal_e_VUV = [], []
                 signal_mu_VIS, signal_mu_VUV = [], []
                 
             for k in range(len(signalsVUV[entry])): 
-                if (trackID[entry] == 1): 
+                if (trackID[entry] == id): 
                     signal_mu_VUV += signalsVUV[entry][k]
                     signal_mu_VIS += signalsVIS[entry][k]
                     
