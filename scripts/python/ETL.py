@@ -105,7 +105,7 @@ class ETL_Techniques:
         return [x, y]
     
     def GTsignalsExtraction(self, eventID, signalsVIS, signalsVUV, trackID, 
-                            id=1, count=0): 
+                            n_particles = 4, id=1, count=0): 
         """
         This function is for one tree (per Track)
         It gets the info of the muon and electron separately for one tree
@@ -114,12 +114,27 @@ class ETL_Techniques:
         list_e, list_mu = [], []
         signal_e_VIS, signal_e_VUV = [], []
         signal_mu_VIS, signal_mu_VUV = [], []
-        pre_ID=0
+        particle=0
+        
         
         for entry in range(len(eventID)): # entries loop
-            if (eventID[entry] != pre_ID): 
+            
+            for k in range(len(signalsVUV[entry])): 
+                if (trackID[entry] == id): 
+                    signal_mu_VUV += signalsVUV[entry][k]
+                    signal_mu_VIS += signalsVIS[entry][k]
+                    
+                else: 
+                    signal_e_VUV += signalsVUV[entry][k]
+                    signal_e_VIS += signalsVIS[entry][k]
+                    
+            particle+=1
+            
+            if (particle == n_particles): 
+                particle=0
+                
                 idx = 'idx: ' + str(count) + '_' + str(eventID[entry])
-                print(idx)
+                # print(idx)
                 
                 hist_VUV = np.histogram(signal_mu_VUV, 1000, [0,10000])
                 hist_VIS = np.histogram(signal_mu_VIS, 1000, [0,10000])
@@ -136,16 +151,5 @@ class ETL_Techniques:
                 
                 signal_e_VIS, signal_e_VUV = [], []
                 signal_mu_VIS, signal_mu_VUV = [], []
-                
-            for k in range(len(signalsVUV[entry])): 
-                if (trackID[entry] == id): 
-                    signal_mu_VUV += signalsVUV[entry][k]
-                    signal_mu_VIS += signalsVIS[entry][k]
-                    
-                else: 
-                    signal_e_VUV += signalsVUV[entry][k]
-                    signal_e_VIS += signalsVIS[entry][k]
-                    
-            pre_ID = eventID[entry]
             
         return list_mu, list_e
