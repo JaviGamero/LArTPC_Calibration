@@ -114,12 +114,12 @@ class ETL_Techniques:
         list_e, list_mu = [], []
         signal_e_VIS, signal_e_VUV = [], []
         signal_mu_VIS, signal_mu_VUV = [], []
-        pre_ID=1
+        pre_ID=0
         
         for entry in range(len(eventID)): # entries loop
-            if (pre_ID != eventID[entry]): 
-                idx = 'idx: ' + str(count) + '_' + str(pre_ID)
-                # print(idx)
+            if (eventID[entry] != pre_ID): 
+                idx = 'idx: ' + str(count) + '_' + str(eventID[entry])
+                print(idx)
                 
                 hist_VUV = np.histogram(signal_mu_VUV, 1000, [0,10000])
                 hist_VIS = np.histogram(signal_mu_VIS, 1000, [0,10000])
