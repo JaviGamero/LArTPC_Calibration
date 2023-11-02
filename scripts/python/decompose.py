@@ -213,3 +213,95 @@ class quality():
             if verbose==1: print('Iterations of cv: {0}/{1}'.format(i+1,k))
             
         return r_train, r_test
+    
+class calibration(): 
+    """
+    The intention of this class is to give it a deconvolved signal
+    and convert it into the 'ideal' domain. Pass from ADC values 
+    to #photons/dt.
+    The method followed to calibrate the deconvolved signal is by a 
+    calibration factor calculated as the division of the integral of
+    the ideal series and deconvolved series in time.
+    
+    Parameters: 
+        - signal_dec: signal(s) deconvolved to calibrate.
+        
+        - signal_id: signal(s) ideal, just in case to calculate calibration factor
+        
+        - t: time array, in case to calculate integrals
+        
+        - multiple: if signals_dec has more than one time serie
+        
+        - C: calibration factor, if None it will be calculated
+        
+        - pre_C: boolean, if true precalculated C will be used
+    """
+    def __init__(self, signal_dec, signal_id = [], t=[], multiple=True, C=None, 
+                 pre_C=False):
+        self.signal_dec = np.array(signal_dec)
+        self.signal_id = np.array(signal_id)
+        self.t = np.array(t).reshape(-1)
+        self.multiple = multiple
+        if pre_C: self.C = 0.016
+        else: self.C = C
+            
+        
+    def _integrateSignal(self):
+        """_summary_
+        Simply calculates the integral of the time series
+        """
+        if self.multiple:
+            r_id = []
+            r_dec = []
+            for serie_dec, serie_id in zip(self.signal_dec, self.signal_id): 
+                r_id.append(np.trapz(serie_id, self.t))
+                r_dec.append(np.trapz(serie_dec, self.t))
+                
+            return np.array(r_id), np.array(r_dec)
+
+        else: 
+            r_id = np.trapz(self.signal_id, self.t)
+            r_dec = np.trapz(self.signal_dec, self.t)
+            return r_id, r_dec
+        
+    def _calculate_CalibrationFactor(self, bins=300, range=[0,0.2], 
+                                     return_dist=False, return_C = False):
+        """
+        This function calulcates the calibration factor. It needs both ideal 
+        signals and convolutioned signals.
+        """
+        
+        if not self.C:  # check C is not introduced
+            
+            # check ideal signal and time is introduced
+            if (len(self.signal_id) > 0) or (len(self.t) > 0): 
+                r_id, r_dec = self._integrateSignal() # calculate integral
+                self.C_distribution = r_dec/r_id # calibration factor
+                
+                # to calculate peak of the Gaussian
+                hist = np.histogram(self.C_distribution, bins=bins, range=range) 
+                max_bin = np.argmax(hist[0])
+                self.C = hist[1][max_bin]
+                
+                # return C distribution, C or one of them
+                if return_dist and return_C: 
+                    print('Calibration factor and its distribution returned')
+                    return self.C, self.C_distribution
+                
+                elif return_C: 
+                    print('Calibration factor returned')
+                    return self.C
+                
+                elif return_dist: 
+                    print('Calibration factor distribution returned')
+                    return self.C_distribution
+                
+            else: 
+                print('No ideal signal introduced to calculate Calibration Factor.')
+                
+        else: 
+            print('Calibration Factor introduced: ', self.C)
+
+    def calibrate(self): 
+        self._calculate_CalibrationFactor()
+        return self.signal_dec / self.C

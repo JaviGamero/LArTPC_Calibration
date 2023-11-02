@@ -144,42 +144,43 @@ for folder in os.listdir(ROOT):
                     X_deco.append(signalDeco[0])
                     Y_deco.append(signalDeco[1])                    
                     
-                x_deco_hot, y_deco_hot = signal_hot(X_deco, Y_deco)
+                x_deco_hot, y_deco_hot = signal_hot(X_deco, Y_deco, n=1)
                 
-                if (len(x_deco_hot) != 5050 or len(y_deco_hot) != 5050): 
-                    print(str(n) + '_' + str(event))
-                    print(len(x_deco_hot), len(y_deco_hot))
+                # if (len(x_deco_hot) != 5050 or len(y_deco_hot) != 5050): 
+                #     print(str(n) + '_' + str(event))
+                #     print(len(x_deco_hot), len(y_deco_hot))
                 
                 # addToCSV(output, y_deco_hot, len(y_deco_hot), 
                         #  str(n) + '_' + str(event))
                 
-                addToCSV(output, x_deco_hot, len(x_deco_hot), '0')
-                input("Time array loaded. Stop.")
+                # addToCSV(output, x_deco_hot, len(x_deco_hot), '0')
+                # input("Time array loaded. Stop.")
                     
                 ################################################################
                 # PLOT
                 ################################################################
-                # fig, axs = plt.subplots(1,3,figsize=(18, 8))
-                # axs[0].hist(LightSignal, 1000, [0,10000], color = 'g', label='Total')
-                # axs[0].set_xlabel("Time, t (ns)")
-                # axs[0].set_ylabel("# Photons")
-                # axs[0].set_title("Light Signal (ideal)")
-                # axs[0].legend(loc='best')
+                print(str(n) + '_' + str(event))
+                fig, axs = plt.subplots(1,3,figsize=(18, 8))
+                axs[0].hist(LightSignal, 1000, [0,10000], color = 'g', label='Total')
+                axs[0].set_xlabel("Time, t (ns)")
+                axs[0].set_ylabel("# Photons")
+                axs[0].set_title("Light Signal (ideal)")
+                axs[0].legend(loc='best')
                 
-                # axs[1].plot(x_raw_hot, y_raw_hot, color = 'g', label='Total')
-                # axs[1].set_xlabel("Time, t (ns)")
-                # axs[1].set_ylabel("Digitalized signal, y_raw (ADC)")
-                # axs[1].set_title("Digitalized signal")
-                # axs[1].legend(loc='best')
+                axs[1].plot(x_raw_hot, y_raw_hot, color = 'g', label='Total')
+                axs[1].set_xlabel("Time, t (ns)")
+                axs[1].set_ylabel("Digitalized signal, y_raw (ADC)")
+                axs[1].set_title("Digitalized signal")
+                axs[1].legend(loc='best')
                 
-                # axs[2].plot(x_deco_hot, y_deco_hot, color = 'g', label='Total')
-                # axs[2].set_xlabel("Time, t (ns)")
-                # axs[2].set_ylabel("Deconvolutioned signal, y_deco (ADC)")
-                # axs[2].set_title("Deconvolutioned signal")
-                # axs[2].legend(loc='best')
+                axs[2].plot(x_deco_hot, y_deco_hot, color = 'g', label='Total')
+                axs[2].set_xlabel("Time, t (ns)")
+                axs[2].set_ylabel("Deconvolutioned signal, y_deco (ADC)")
+                axs[2].set_title("Deconvolutioned signal")
+                axs[2].legend(loc='best')
                 
-                # plt.tight_layout()
-                # plt.show()
+                plt.tight_layout()
+                plt.show()
             
             n+=1
             print('Tree: ', n)
