@@ -49,6 +49,26 @@ class ETL_Techniques:
             
             return dE_e, E_e, startX_e
         
+    def getElectron2EnergiesX0AndEnergydepx(self, stepX, PDGcode, dE, E, energydepX):
+        # this function is just like the one above, except that it also returns
+        # the x position of the energy deposition
+        for j in range(len(stepX)):
+            if PDGcode[j]!=self.particlePDG: continue # take the electron
+            dE_e = dE[j]  # this is the energy deposited
+            startX_e = stepX[j][0]
+            E_e = E[j]
+            energydepX_e = energydepX[j]
+            
+            return dE_e, E_e, startX_e, energydepX_e
+        
+    def getEnergyDepAndX(self, PDGcode, energydep, energydepX):
+        for j in range(len(PDGcode)):
+            if PDGcode[j]!=self.particlePDG: continue # take the electron
+            energydep_e = energydep[j]
+            energydepX_e = energydepX[j]
+            
+            return energydep_e, energydepX_e
+        
     def getTotalEnergyDep(self, energydep, PDGcode):
         # this function calculates the sum of the energy deposition for a 
         # particle
