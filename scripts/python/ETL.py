@@ -96,6 +96,38 @@ class ETL_Techniques:
         
         return LightSignal
     
+    def getLightSignal_coatedUncoated(self, NPhotonsVUV, NPhotonsVIS, PMTs_info):
+        
+        PMTs_info = PMTs_info[(PMTs_info['PMT_Type'] == 'pmt_coated') | 
+                      (PMTs_info['PMT_Type'] == 'pmt_uncoated')]
+        
+        LightSignalVUV = [] 
+        LightSignalVIS = []
+        for id in range(len(NPhotonsVIS)): 
+            
+            if ((id in PMTs_info['Id']) ):
+                
+                # print(PMTs_info[PMTs_info['Id']==id]['PMT_Type'].values[0])
+                
+                # coated PMTs --> see VIS and VUV
+                if (PMTs_info[PMTs_info['Id']==id]['PMT_Type']
+                    .values[0] == 'pmt_coated'): 
+                    
+                    LightSignalVIS += NPhotonsVIS[id] 
+                    LightSignalVUV += NPhotonsVUV[id] 
+                    
+                    # print('Coated')
+                    # print(len(LightSignalVUV), len(LightSignalVIS))
+                
+                # uncoated PMTs --> see VIS
+                else: 
+                    # print('Uncoated')
+                    # print(len(LightSignalVUV), len(LightSignalVIS))
+                    LightSignalVIS += NPhotonsVIS[id] 
+                    
+        
+        return LightSignalVIS, LightSignalVUV
+    
     def getRawSignal(self, signalDigi, stampTime, pmt):
         # this is for one PMT
         x, y = [], []
