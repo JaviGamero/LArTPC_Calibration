@@ -205,3 +205,85 @@ class ETL_Techniques:
                 signal_mu_VIS, signal_mu_VUV = [], []
             
         return list_mu, list_e
+    
+    def GTsignalsExtraction_coatedUncoated(self, eventID, signalsVIS, signalsVUV, 
+                                        trackID, PMTs_info, light='both',
+                                        n_particles = 4, id=1): 
+            """
+            This function is for one tree (per Track)
+            It gets the info of the muon and electron separately for one tree
+            
+            light='VUV', 'VIS', 'both'
+            """
+            
+            list_e, list_mu = [], []
+            signal_e_VIS, signal_e_VUV = [], []
+            signal_mu_VIS, signal_mu_VUV = [], []
+            particle=0
+            
+            
+            for entry in range(len(eventID)): # entries loop
+                
+                for PMTid in range(len(signalsVUV[entry])): 
+                    
+                    if (PMTid in PMTs_info['Id']):
+                    
+                        # coated PMTs --> see VIS and VUV
+                        if (PMTs_info[PMTs_info['Id']==PMTid]['PMT_Type']
+                        .values[0] == 'pmt_coated'): 
+                        
+                            if (trackID[entry] == id): 
+                                signal_mu_VUV += signalsVUV[entry][PMTid]
+                                signal_mu_VIS += signalsVIS[entry][PMTid]
+                                
+                            else: 
+                                signal_e_VUV += signalsVUV[entry][PMTid]
+                                signal_e_VIS += signalsVIS[entry][PMTid]
+                                
+                        # rest --> uncoated PMTs --> see VIS
+                        else: 
+                            if (trackID[entry] == id): 
+                                signal_mu_VIS += signalsVIS[entry][PMTid]
+                                
+                            else: 
+                                signal_e_VIS += signalsVIS[entry][PMTid]
+                        
+                particle+=1
+                
+                if (particle == n_particles): 
+                    particle=0
+                    
+                    hist_VUV_mu = np.histogram(signal_mu_VUV, 1000, [0,10000])
+                    hist_VIS_mu = np.histogram(signal_mu_VIS, 1000, [0,10000])
+                    hist_VUV_e = np.histogram(signal_e_VUV, 1000, [0,10000])
+                    hist_VIS_e = np.histogram(signal_e_VIS, 1000, [0,10000])
+                    
+                    if light=='VIS':
+                        list_mu.append(hist_VIS_mu[0])
+                        list_e.append(hist_VIS_e[0])
+                    
+                    elif light=='VUV': 
+                        list_mu.append(hist_VUV_mu[0])
+                        list_e.append(hist_VUV_e[0])
+                        
+                    elif light=='both':
+                        list_mu.append(hist_VUV_mu[0] + hist_VIS_mu[0])
+                        
+                        list_e.append(hist_VUV_e[0] + hist_VIS_e[0])
+                        
+                    else: 
+                        print('No light component well introduced.')
+                        print('Choose between: "VUV", "VUV" or "both"')
+                        return 0
+                    
+                    # t = np.arange(0,10000,10)
+                    # plt.figure(idx)
+                    # plt.plot(t, np.array(list_e).reshape(-1))
+                    # plt.show()
+                    
+                    # input('Hey')
+                    
+                    signal_e_VIS, signal_e_VUV = [], []
+                    signal_mu_VIS, signal_mu_VUV = [], []
+                
+            return list_mu, list_e
