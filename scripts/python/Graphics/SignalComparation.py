@@ -59,8 +59,8 @@ samplingTime = 2 # ns
 shiftStamp = 135. # ns 
 
 branches_to_activate = ["SimPhotonsLiteVUV", "SimPhotonsLiteVIS", 
-                        # "SignalsDigi", "SignalsDeco", "OpChDigi",
-                        # "OpChDeco", "StampTime", "StampTimeDeco",
+                        "SignalsDigi", "SignalsDeco", "OpChDigi",
+                        "OpChDeco", "StampTime", "StampTimeDeco",
                         "stepX", "dE", "PDGcode", "eventID"
                         ]
 
@@ -138,37 +138,37 @@ for folder in os.listdir(ROOT):
                 # ################################################################
                 # # ADC SIGNALS
                 # ################################################################
-                # # Calculate raw and deco signal (DIGITALIZED and DECONVOLUTIONED)
+                # Calculate raw and deco signal (DIGITALIZED and DECONVOLUTIONED)
                 
-                # X_raw, Y_raw = [], []
-                # # DIGITALIZED
-                # for j in range(len(branches["OpChDigi"][entry])): # above PDs
-                #     if (j not in etl.sel_PMTsID): continue
+                X_raw, Y_raw = [], []
+                # DIGITALIZED
+                for j in range(len(branches["OpChDigi"][entry])): # above PDs
+                    if (j not in etl.sel_PMTsID): continue
 
-                #     signalDigi = etl.getRawSignal(branches["SignalsDigi"][entry], 
-                #                                   branches["StampTime"][entry], 
-                #                                   j)
+                    signalDigi = etl.getRawSignal(branches["SignalsDigi"][entry], 
+                                                  branches["StampTime"][entry], 
+                                                  j)
                     
-                #     if len(signalDigi[1]) == 0: continue
+                    if len(signalDigi[1]) == 0: continue
                         
-                #     X_raw.append(signalDigi[0])
-                #     Y_raw.append(signalDigi[1])
+                    X_raw.append(signalDigi[0])
+                    Y_raw.append(signalDigi[1])
                     
-                # x_raw_hot, y_raw_hot = signal_hot(X_raw, Y_raw)
+                x_raw_hot, y_raw_hot = signal_hot(X_raw, Y_raw, n=3)
                             
-                # # DECONVOLUTIONED
-                # X_deco, Y_deco = [], []
-                # for j in range(len(branches["OpChDeco"][entry])): # above PDs
-                #     signalDeco = etl.getDecoSignal(branches["SignalsDeco"][entry], 
-                #                                   branches["StampTimeDeco"][entry], 
-                #                                   j)
+                # DECONVOLUTIONED
+                X_deco, Y_deco = [], []
+                for j in range(len(branches["OpChDeco"][entry])): # above PDs
+                    signalDeco = etl.getDecoSignal(branches["SignalsDeco"][entry], 
+                                                  branches["StampTimeDeco"][entry], 
+                                                  j)
                     
-                #     if len(signalDeco[1]) == 0: continue
+                    if len(signalDeco[1]) == 0: continue
                     
-                #     X_deco.append(signalDeco[0])
-                #     Y_deco.append(signalDeco[1])                    
+                    X_deco.append(signalDeco[0])
+                    Y_deco.append(signalDeco[1])                    
                     
-                # x_deco_hot, y_deco_hot = signal_hot(X_deco, Y_deco, n=1)
+                x_deco_hot, y_deco_hot = signal_hot(X_deco, Y_deco, n=3)
                 
                 # if (len(x_deco_hot) != 5050 or len(y_deco_hot) != 5050): 
                 #     print(str(n) + '_' + str(event))
@@ -183,49 +183,53 @@ for folder in os.listdir(ROOT):
                 # ################################################################
                 # # PLOT
                 # ################################################################
-                # print(str(n) + '_' + str(event))
-                # fig, axs = plt.subplots(1,3,figsize=(18, 8))
-                # axs[0].hist(LightSignal, 1000, [0,10000], color = 'g', label='Total')
-                # axs[0].set_xlabel("Time, t (ns)")
-                # axs[0].set_ylabel("# Photons")
-                # axs[0].set_title("Light Signal (ideal)")
-                # axs[0].legend(loc='best')
+                print(str(n) + '_' + str(event))
+                fontsize=20
+                plt.rcParams['font.size'] = str(fontsize)
                 
-                # axs[1].plot(x_raw_hot, y_raw_hot, color = 'g', label='Total')
-                # axs[1].set_xlabel("Time, t (ns)")
-                # axs[1].set_ylabel("Digitalized signal, y_raw (ADC)")
-                # axs[1].set_title("Digitalized signal")
-                # axs[1].legend(loc='best')
+                fig, axs = plt.subplots(1,3,figsize=(18, 8))
+                axs[0].plot(np.arange(0,10000,10), LightSignal, color = 'g', label='Total')
+                axs[0].set_xlabel("Time, t (ns)")
+                axs[0].set_ylabel("# Photons", fontsize=fontsize)
+                axs[0].set_title("Light Signal (ideal)", fontsize=fontsize)
+                axs[0].legend(loc='best', prop={'size':fontsize})
                 
-                # axs[2].plot(x_deco_hot, y_deco_hot, color = 'g', label='Total')
-                # axs[2].set_xlabel("Time, t (ns)")
-                # axs[2].set_ylabel("Deconvolutioned signal, y_deco (ADC)")
-                # axs[2].set_title("Deconvolutioned signal")
-                # axs[2].legend(loc='best')
+                axs[1].plot(x_raw_hot, y_raw_hot, color = 'g', label='Total')
+                axs[1].set_xlabel("Time, t (ns)", fontsize=fontsize)
+                axs[1].set_ylabel("Digitalized signal, y_raw (ADC)", fontsize=fontsize)
+                axs[1].set_title("Digitalized signal", fontsize=fontsize)
+                axs[1].legend(loc='best')
                 
-                # plt.tight_layout()
-                # plt.show()
+                axs[2].plot(x_deco_hot, y_deco_hot, color = 'g', label='Total')
+                axs[2].set_xlabel("Time, t (ns)", fontsize=fontsize)
+                axs[2].set_ylabel("Deconvolutioned signal, y_deco (ADC)", fontsize=fontsize)
+                axs[2].set_title("Deconvolved signal", fontsize=fontsize)
+                axs[2].legend(loc='best', prop={'size':fontsize})
                 
-                # fig, axs = plt.subplots(1,3,figsize=(18, 8))
-                # axs[0].plot(np.arange(0,10000,10), VIS, color = 'g', label='VIS')
-                # axs[0].set_xlabel("Time, t (ns)")
-                # axs[0].set_ylabel("# Photons")
-                # axs[0].set_title("Light Signal (ideal)")
-                # axs[0].legend(loc='best')
+                plt.tight_layout()
+                plt.show()
                 
-                # axs[1].plot(np.arange(0,10000,10), VUV, color = 'g', label='VUV')
-                # axs[1].set_xlabel("Time, t (ns)")
-                # axs[1].set_ylabel("# Photons")
-                # axs[1].set_title("Light Signal (ideal)")
-                # axs[1].legend(loc='best')
+                fig, axs = plt.subplots(1,3,figsize=(18, 8))
+                axs[0].plot(np.arange(0,10000,10), VIS, color = 'g', label='VIS')
+                axs[0].set_xlabel("Time, t (ns)", fontsize=fontsize)
+                axs[0].set_ylabel("# Photons", fontsize=fontsize)
+                axs[0].set_title("Light Signal (ideal)", fontsize=fontsize)
+                axs[0].legend(loc='best')
                 
-                # axs[2].plot(np.arange(0,10000,10), LightSignal, color = 'g', label='TOTAL')
-                # axs[2].set_xlabel("Time, t (ns)")
-                # axs[2].set_ylabel("# Photons")
-                # axs[2].set_title("Light Signal (ideal)")
-                # axs[2].legend(loc='best')
+                axs[1].plot(np.arange(0,10000,10), VUV, color = 'g', label='VUV')
+                axs[1].set_xlabel("Time, t (ns)")
+                axs[1].set_ylabel("# Photons")
+                axs[1].set_title("Light Signal (ideal)")
+                axs[1].legend(loc='best')
                 
-                # plt.show()
+                axs[2].plot(np.arange(0,10000,10), LightSignal, color = 'g', label='TOTAL')
+                axs[2].set_xlabel("Time, t (ns)")
+                axs[2].set_ylabel("# Photons")
+                axs[2].set_title("Light Signal (ideal)")
+                axs[2].legend(loc='best')
+                
+                plt.tight_layout()
+                plt.show()
             
             n+=1
             print('Tree: ', n)
