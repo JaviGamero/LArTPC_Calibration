@@ -209,11 +209,13 @@ for folder in os.listdir(ROOT):
                 plt.tight_layout()
                 plt.show()
                 
+                plt.rcParams['font.size'] = str(fontsize)
+                
                 fig, axs = plt.subplots(1,3,figsize=(18, 8))
                 axs[0].plot(np.arange(0,10000,10), VIS, color = 'g', label='VIS')
-                axs[0].set_xlabel("Time, t (ns)", fontsize=fontsize)
-                axs[0].set_ylabel("# Photons", fontsize=fontsize)
-                axs[0].set_title("Light Signal (ideal)", fontsize=fontsize)
+                axs[0].set_xlabel("Time, t (ns)")
+                axs[0].set_ylabel("# Photons")
+                axs[0].set_title("Light Signal (ideal)")
                 axs[0].legend(loc='best')
                 
                 axs[1].plot(np.arange(0,10000,10), VUV, color = 'g', label='VUV')
@@ -222,7 +224,7 @@ for folder in os.listdir(ROOT):
                 axs[1].set_title("Light Signal (ideal)")
                 axs[1].legend(loc='best')
                 
-                axs[2].plot(np.arange(0,10000,10), LightSignal, color = 'g', label='TOTAL')
+                axs[2].plot(np.arange(0,10000,10), LightSignal, color = 'g', label='Total')
                 axs[2].set_xlabel("Time, t (ns)")
                 axs[2].set_ylabel("# Photons")
                 axs[2].set_title("Light Signal (ideal)")
