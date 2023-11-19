@@ -83,13 +83,15 @@ for folder in os.listdir(ROOT):
                 signalsVUV = branches['SimPhotonsVUV'], 
                 trackID = branches['TrackID'],
                 PMTs_info=PMTs_info,
-                light='VIS', ######## CHANGE HERE THE COMPONENT OF LIGHT TO SEE
+                light='VUV', ######## CHANGE HERE THE COMPONENT OF LIGHT TO SEE
                 n_particles=4 ,
                 id=1
             )
             
             e = np.array(e)[:50,:]
-            df_light = pd.concat([df_light, pd.DataFrame(e)], axis=0)
+            mu = np.array(mu)[:50,:]
+            total = e+mu
+            df_light = pd.concat([df_light, pd.DataFrame(total)], axis=0)
             print(df_light.shape)
             
             
