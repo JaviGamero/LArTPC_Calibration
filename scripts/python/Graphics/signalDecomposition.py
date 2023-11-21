@@ -84,26 +84,49 @@ for folder in os.listdir(ROOT):
                     hist_mu = np.histogram(signal_mu, 1000, [0,10000])[0]
                     t = np.arange(0,10000,10)
                     
-                    
-                    plt.rcParams['font.size'] = str(16)
-                    
                     fig, axs = plt.subplots(1,2,figsize=(10,6))
-                    plt.title('idx: '+ str(count)+'_'+str(pre_ID))                    
+                    plt.rcParams['font.size'] = str(16)   
+                    axs[0].set_title(r'$\Delta$t = 10(ns), , bins=1000')
                     axs[0].plot(t, hist_e+hist_mu, label = 'Total', color='g')
                     axs[0].set_xlabel("Time, t (ns)")
                     axs[0].set_ylabel(r"#Photons/$\Delta$t")
-                    axs[0].set_title("Total")
                     axs[0].legend(loc='best')
                     
-                    axs[1].plot(t, hist_mu, alpha=0.8, color="blue", label="muon")
-                    axs[1].plot(t, hist_e, color="red", label="electron")
+                    hist_e = np.histogram(signal_e, 5000, [0,10000])[0]
+                    hist_mu = np.histogram(signal_mu, 5000, [0,10000])[0]
+                    t = np.arange(0,10000,2)
+                    
+                    axs[1].set_title(r'$\Delta$t = 2(ns), bins=5000')
+                    axs[1].plot(t, hist_e+hist_mu, label = 'Total', color='g')
                     axs[1].set_xlabel("Time, t (ns)")
                     axs[1].set_ylabel(r"#Photons/$\Delta$t")
-                    axs[1].set_title("Signal decomposed")
                     axs[1].legend(loc='best')
                     
                     plt.tight_layout()
                     plt.show()
+                    
+                    # hist_e = np.histogram(signal_e, 1000, [0,10000])[0]
+                    # hist_mu = np.histogram(signal_mu, 1000, [0,10000])[0]
+                    # t = np.arange(0,10000,10)
+                    # plt.rcParams['font.size'] = str(16)                    
+                    # fig, axs = plt.subplots(1,2,figsize=(10,6))
+                    
+                    # plt.title('idx: '+ str(count)+'_'+str(pre_ID))                    
+                    # axs[0].plot(t, hist_e+hist_mu, label = 'Total', color='g')
+                    # axs[0].set_xlabel("Time, t (ns)")
+                    # axs[0].set_ylabel(r"#Photons/$\Delta$t")
+                    # axs[0].set_title("Total")
+                    # axs[0].legend(loc='best')
+                    
+                    # axs[1].plot(t, hist_mu, alpha=0.8, color="blue", label="muon")
+                    # axs[1].plot(t, hist_e, color="red", label="electron")
+                    # axs[1].set_xlabel("Time, t (ns)")
+                    # axs[1].set_ylabel(r"#Photons/$\Delta$t")
+                    # axs[1].set_title("Signal decomposed")
+                    # axs[1].legend(loc='best')
+                    
+                    # plt.tight_layout()
+                    # plt.show()                    
                     
                     # fig = plt.figure(figsize=(8,5))
                     # plt.title('idx: '+ str(count)+'_'+str(pre_ID))
@@ -125,6 +148,7 @@ for folder in os.listdir(ROOT):
                     signal_e = []
                     signal_mu = []
                     
+                print(branches["TrackID"])
                 for k in range(len(branches["SimPhotonsVUV"][entry])): 
                     if (branches["TrackID"][entry] == 1): 
                         signal_mu += branches["SimPhotonsVUV"][entry][k]
