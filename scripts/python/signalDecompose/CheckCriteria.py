@@ -34,8 +34,8 @@ t0 = 150 # (ns), moment to start considering the slow component, EXPERIMENTAL
 t = np.array(t.iloc[0, :]).reshape(-1) #1D array from t0 and on
 
 e_GT_path = os.path.join(PATH, 'data_preproc/LightSignal_decomp_e.csv')
-e_signals = pd.read_csv(e_GT_path, sep=';', header=None)
-e_signals.set_index(0, inplace=True)
+e_signals = pd.read_csv(e_GT_path, sep=';', header=0, index_col=0)
+# e_signals.set_index(0, inplace=True)
 
 count_total = e_signals.shape[0]
 e_signals = e_signals.loc[idxs, :] 
