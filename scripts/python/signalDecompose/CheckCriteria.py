@@ -21,10 +21,6 @@ print('\nThis script checks how many of the total series accomplish the ',
 
 PATH = os.path.abspath(os.path.join(os.getcwd())) # main path
 
-idx_path = os.path.join(PATH, 'data_preproc/LightSignal_total.csv')
-idxs = pd.read_csv(idx_path, sep=';', header=None)
-idxs = np.array(idxs.iloc[:,0]).reshape(-1)
-
 t_path = os.path.join(PATH, 'data_preproc/LightSignal_t.csv')
 t = pd.read_csv(t_path, sep=';', header=None) # t[0] is nonsensen, remove it
 t.set_index(0, inplace=True)
@@ -38,7 +34,6 @@ e_signals = pd.read_csv(e_GT_path, sep=';', header=0, index_col=0)
 # e_signals.set_index(0, inplace=True)
 
 count_total = e_signals.shape[0]
-e_signals = e_signals.loc[idxs, :] 
 
 ################################################################################
 ################################################################################
