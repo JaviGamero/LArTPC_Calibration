@@ -187,48 +187,69 @@ for folder in os.listdir(ROOT):
                 fontsize=20
                 plt.rcParams['font.size'] = str(fontsize)
                 
-                fig, axs = plt.subplots(1,3,figsize=(18, 8))
+                # fig, axs = plt.subplots(1,3,figsize=(18, 8))
+                # axs[0].plot(np.arange(0,10000,10), LightSignal, color = 'g', label='Total')
+                # axs[0].set_xlabel("Time, t (ns)")
+                # axs[0].set_ylabel(r"#Photons/$\Delta$t")
+                # axs[0].set_title("Light Signal (ideal)")
+                # axs[0].legend(loc='best', )
+                
+                # axs[1].plot(x_raw_hot, y_raw_hot, color = 'g', label='Total')
+                # axs[1].set_xlabel("Time, t (ns)", fontsize=fontsize)
+                # axs[1].set_ylabel("Digitalized signal, y_raw (ADC)", fontsize=fontsize)
+                # axs[1].set_title("Digitalized signal", fontsize=fontsize)
+                # axs[1].legend(loc='best')
+                
+                # axs[2].plot(x_deco_hot, y_deco_hot, color = 'g', label='Total')
+                # axs[2].set_xlabel("Time, t (ns)", fontsize=fontsize)
+                # axs[2].set_ylabel("Deconvolutioned signal, y_deco (ADC)", fontsize=fontsize)
+                # axs[2].set_title("Deconvolved signal", fontsize=fontsize)
+                # axs[2].legend(loc='best', prop={'size':fontsize})
+                
+                # plt.tight_layout()
+                # plt.show()
+                
+                # plt.rcParams['font.size'] = str(fontsize)
+                
+                # fig, axs = plt.subplots(1,3,figsize=(18, 8))
+                # axs[0].plot(np.arange(0,10000,10), VIS, color = 'g', label='VIS')
+                # axs[0].set_xlabel("Time, t (ns)")
+                # axs[0].set_ylabel(r"#Photons/$\Delta$t")
+                # axs[0].set_title("Light Signal (ideal)")
+                # axs[0].legend(loc='best')
+                
+                # axs[1].plot(np.arange(0,10000,10), VUV, color = 'g', label='VUV')
+                # axs[1].set_xlabel("Time, t (ns)")
+                # axs[1].set_ylabel(r"#Photons/$\Delta$t")
+                # axs[1].set_title("Light Signal (ideal)")
+                # axs[1].legend(loc='best')
+                
+                # axs[2].plot(np.arange(0,10000,10), LightSignal, color = 'g', label='Total')
+                # axs[2].set_xlabel("Time, t (ns)")
+                # axs[2].set_ylabel(r"#Photons/$\Delta$t")
+                # axs[2].set_title("Light Signal (ideal)")
+                # axs[2].legend(loc='best')
+                
+                # plt.tight_layout()
+                # plt.show()
+                
+                plt.rcParams['font.size'] = str(16)  
+                
+                fig, axs = plt.subplots(1,2,figsize=(10,6))
                 axs[0].plot(np.arange(0,10000,10), LightSignal, color = 'g', label='Total')
+                # axs[0].set_xlim(0,200)
                 axs[0].set_xlabel("Time, t (ns)")
                 axs[0].set_ylabel(r"#Photons/$\Delta$t")
                 axs[0].set_title("Light Signal (ideal)")
                 axs[0].legend(loc='best', )
                 
-                axs[1].plot(x_raw_hot, y_raw_hot, color = 'g', label='Total')
-                axs[1].set_xlabel("Time, t (ns)", fontsize=fontsize)
-                axs[1].set_ylabel("Digitalized signal, y_raw (ADC)", fontsize=fontsize)
-                axs[1].set_title("Digitalized signal", fontsize=fontsize)
-                axs[1].legend(loc='best')
-                
-                axs[2].plot(x_deco_hot, y_deco_hot, color = 'g', label='Total')
-                axs[2].set_xlabel("Time, t (ns)", fontsize=fontsize)
-                axs[2].set_ylabel("Deconvolutioned signal, y_deco (ADC)", fontsize=fontsize)
-                axs[2].set_title("Deconvolved signal", fontsize=fontsize)
-                axs[2].legend(loc='best', prop={'size':fontsize})
-                
-                plt.tight_layout()
-                plt.show()
-                
-                plt.rcParams['font.size'] = str(fontsize)
-                
-                fig, axs = plt.subplots(1,3,figsize=(18, 8))
-                axs[0].plot(np.arange(0,10000,10), VIS, color = 'g', label='VIS')
-                axs[0].set_xlabel("Time, t (ns)")
-                axs[0].set_ylabel(r"#Photons/$\Delta$t")
-                axs[0].set_title("Light Signal (ideal)")
-                axs[0].legend(loc='best')
-                
-                axs[1].plot(np.arange(0,10000,10), VUV, color = 'g', label='VUV')
+                axs[1].plot(np.arange(0,10000,10), LightSignal, color = 'g', label='Total')
+                axs[1].set_xlim(0,200)
                 axs[1].set_xlabel("Time, t (ns)")
                 axs[1].set_ylabel(r"#Photons/$\Delta$t")
                 axs[1].set_title("Light Signal (ideal)")
-                axs[1].legend(loc='best')
+                axs[1].legend(loc='best', )
                 
-                axs[2].plot(np.arange(0,10000,10), LightSignal, color = 'g', label='Total')
-                axs[2].set_xlabel("Time, t (ns)")
-                axs[2].set_ylabel(r"#Photons/$\Delta$t")
-                axs[2].set_title("Light Signal (ideal)")
-                axs[2].legend(loc='best')
                 
                 plt.tight_layout()
                 plt.show()

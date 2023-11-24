@@ -64,9 +64,9 @@ print('Number of series that accomplish all criterias:', count_both)
 print()
 
 print('Ratio of series that accomplish criteria 1:', count_criteria_1/count_total*100, '%')
-print('Ratio of series that accomplish criteria 2:', count_criteria_2/count_total*100, '%')
-print('Ratio of series that accomplish criteria 3:', count_criteria_3/count_total*100, '%')
-print('Ratio of series that accomplish all criterias:', count_both/count_total*100, '%')
+print('Ratio of series that accomplish criteria 2:', 100 - count_criteria_2/count_total*100, '%')
+print('Ratio of series that accomplish criteria 3:', 100 - count_criteria_3/count_total*100, '%')
+print('Ratio of series that accomplish all criterias:', 100 - count_both/count_total*100, '%')
 
 print()
-print(t[0], t[1])
+# print(t[0], t[1])
