@@ -39,7 +39,7 @@ from random import seed
 # Functions
 ################################################################################
 
-expDecay = lambda t, A0, tau: A0 * np.exp(-t/tau) # tau in (ns)
+expDecay = lambda t, A0, tau: A0/tau * np.exp(-t/tau) # tau in (ns)
 
 ################################################################################
 # Data preprocessed and variables
@@ -96,7 +96,7 @@ for idx in signals.index:
     model.automaticFit() # fit the signal 
     model.extractElectronSignal() # substract the electron signal
     e_signal_calc = model.decomp_signal
-    # model.plotSignals() # plot the results
+    model.plotSignals() # plot the results
     
     model_GT = decompose(t, mu_signal)
     model_GT.automaticFit() # calculate tau 
