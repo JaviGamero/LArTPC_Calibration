@@ -3,6 +3,7 @@ from scipy.optimize import curve_fit
 import numpy as np 
 import matplotlib.pyplot as plt 
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
 
 class greedyDecomposition(): 
     """
@@ -215,6 +216,9 @@ class quality():
             if verbose==1: print('Iterations of cv: {0}/{1}'.format(i+1,k))
             
         return r_train, r_test
+    
+    def mse(self): 
+        return mean_squared_error(self.GT_signal, self.decomp_signal)
     
 class calibration(): 
     """
