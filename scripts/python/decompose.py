@@ -176,6 +176,8 @@ class quality():
         
     def getScore(self, estimator, X, y, test_size=0.2, random_state=2023, 
                  train_result=False):
+        self.mse_list = []
+        self.mse_list_train = []
         X_train, X_test, y_train, y_test = train_test_split(X, y, 
                                                             test_size=test_size, 
                                                             random_state=random_state)
@@ -194,10 +196,14 @@ class quality():
             if self._score_efound(GT, pred): e_found_train+=1
         r_train = e_found_train/y_train.shape[0]
         
+        self.mse_list.append(mean_squared_error(y_test, y_pred))
+        self.mse_list_train.append(mean_squared_error(y_train, y_pred_train))
+        
         return r_train, r_test
         # if train_result: 
         
-            
+    def _getMSE_list(self): 
+        return self.mse_list
         
     def cross_validate(self, estimator, X, y, k=5, test_size=0.2, 
                        verbose=1, random_state = 2023): 
