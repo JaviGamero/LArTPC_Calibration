@@ -21,10 +21,6 @@ print('\nThis script checks how many of the total series accomplish the ',
 
 PATH = os.path.abspath(os.path.join(os.getcwd())) # main path
 
-idx_path = os.path.join(PATH, 'data_preproc/LightSignal_total.csv')
-idxs = pd.read_csv(idx_path, sep=';', header=None)
-idxs = np.array(idxs.iloc[:,0]).reshape(-1)
-
 t_path = os.path.join(PATH, 'data_preproc/LightSignal_t.csv')
 t = pd.read_csv(t_path, sep=';', header=None) # t[0] is nonsensen, remove it
 t.set_index(0, inplace=True)
@@ -34,11 +30,10 @@ t0 = 150 # (ns), moment to start considering the slow component, EXPERIMENTAL
 t = np.array(t.iloc[0, :]).reshape(-1) #1D array from t0 and on
 
 e_GT_path = os.path.join(PATH, 'data_preproc/LightSignal_decomp_e.csv')
-e_signals = pd.read_csv(e_GT_path, sep=';', header=None)
-e_signals.set_index(0, inplace=True)
+e_signals = pd.read_csv(e_GT_path, sep=';', header=0, index_col=0)
+# e_signals.set_index(0, inplace=True)
 
 count_total = e_signals.shape[0]
-e_signals = e_signals.loc[idxs, :] 
 
 ################################################################################
 ################################################################################
@@ -69,9 +64,9 @@ print('Number of series that accomplish all criterias:', count_both)
 print()
 
 print('Ratio of series that accomplish criteria 1:', count_criteria_1/count_total*100, '%')
-print('Ratio of series that accomplish criteria 2:', count_criteria_2/count_total*100, '%')
-print('Ratio of series that accomplish criteria 3:', count_criteria_3/count_total*100, '%')
-print('Ratio of series that accomplish all criterias:', count_both/count_total*100, '%')
+print('Ratio of series that accomplish criteria 2:', 100 - count_criteria_2/count_total*100, '%')
+print('Ratio of series that accomplish criteria 3:', 100 - count_criteria_3/count_total*100, '%')
+print('Ratio of series that accomplish all criterias:', 100 - count_both/count_total*100, '%')
 
 print()
-print(t[0], t[1])
+# print(t[0], t[1])

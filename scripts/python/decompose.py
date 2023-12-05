@@ -3,6 +3,7 @@ from scipy.optimize import curve_fit
 import numpy as np 
 import matplotlib.pyplot as plt 
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
 
 class greedyDecomposition(): 
     """
@@ -36,7 +37,7 @@ class greedyDecomposition():
         self.max_error = 10
 
     def decayEq(self, t, A0, tau): 
-        return A0 * np.exp(-t/tau)
+        return A0/tau * np.exp(-t/tau) 
     
     def _calculateA0(self, t, y):
         self.A0 = y * np.exp(t/self.tau)
@@ -109,26 +110,28 @@ class greedyDecomposition():
     
     def plotSignals(self):
         if (np.array(self.GT_signal).size > 0): 
-            fig, axs = plt.subplots(1,2, figsize = (10,5))
+            plt.rcParams['font.size'] = str(16) 
+            fig, axs = plt.subplots(1,2, figsize = (10,6))
             
-            axs[0].plot(self.t, self.signal, c='black', label='Original')
+            axs[0].plot(self.t, self.signal, c='g', label='Original', alpha=0.8)
             if (np.array(self.fit_signal).size > 0): 
-                axs[0].plot(self.t, self.fit_signal, c='b', label='Fit')
+                axs[0].plot(self.t, self.fit_signal, c='b', label='Muon Fit')
             if (np.array(self.decomp_signal).size > 0): 
-                axs[0].plot(self.t, self.decomp_signal, c='r', label='Electron decomposed')
+                axs[0].plot(self.t, self.decomp_signal, c='orange', label='e (decomp)', alpha=0.7)
             axs[0].set_xlabel('Time, t (ns)')
             axs[0].set_ylabel('# Photons')
             axs[0].legend(loc='best')   
             
-            axs[1].plot(self.t, self.GT_signal, c='g', label='GT')
+            axs[1].plot(self.t, self.GT_signal, c='r', label='e (GT)')
             if (np.array(self.decomp_signal).size > 0):
-                axs[1].plot(self.t, self.decomp_signal, c='r', label='Decomposition', alpha=0.8)
+                axs[1].plot(self.t, self.decomp_signal, c='orange', label='e (decomp)', alpha=0.7)
             axs[1].set_xlabel('Time, t (ns)')
             axs[1].set_ylabel('# Photons')
             axs[1].legend(loc='best')
             
         else: 
-            fig, axs = plt.subplots(1,1, figsize = (7,7))
+            plt.rcParams['font.size'] = str(16) 
+            fig, axs = plt.subplots(1,1, figsize = (8,6))
             
             axs.plot(self.t, self.signal, c='g', label='Original')
             if (np.array(self.fit_signal).size > 0): 
@@ -173,6 +176,8 @@ class quality():
         
     def getScore(self, estimator, X, y, test_size=0.2, random_state=2023, 
                  train_result=False):
+        self.mse_list = []
+        self.mse_list_train = []
         X_train, X_test, y_train, y_test = train_test_split(X, y, 
                                                             test_size=test_size, 
                                                             random_state=random_state)
@@ -191,10 +196,14 @@ class quality():
             if self._score_efound(GT, pred): e_found_train+=1
         r_train = e_found_train/y_train.shape[0]
         
+        self.mse_list.append(mean_squared_error(y_test, y_pred))
+        self.mse_list_train.append(mean_squared_error(y_train, y_pred_train))
+        
         return r_train, r_test
         # if train_result: 
         
-            
+    def _getMSE_list(self): 
+        return self.mse_list
         
     def cross_validate(self, estimator, X, y, k=5, test_size=0.2, 
                        verbose=1, random_state = 2023): 
@@ -213,6 +222,9 @@ class quality():
             if verbose==1: print('Iterations of cv: {0}/{1}'.format(i+1,k))
             
         return r_train, r_test
+    
+    def mse(self): 
+        return mean_squared_error(self.GT_signal, self.decomp_signal)
     
 class calibration(): 
     """

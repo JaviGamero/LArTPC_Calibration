@@ -31,6 +31,7 @@ sys.path.append(libraries)
 import numpy as np 
 import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn.metrics import mean_squared_error
 
 from decompose import greedyDecomposition as decompose, quality
 from random import seed
@@ -39,7 +40,7 @@ from random import seed
 # Functions
 ################################################################################
 
-expDecay = lambda t, A0, tau: A0 * np.exp(-t/tau) # tau in (ns)
+expDecay = lambda t, A0, tau: A0/tau * np.exp(-t/tau) # tau in (ns)
 
 ################################################################################
 # Data preprocessed and variables
@@ -76,6 +77,7 @@ nphotons_min = 5 # min photons a signal needs to have in a moment to be able of
                  # recognising the electron
 
 r = [] # list of relative erros
+e_mse = [] #list of mse
 e_found = 0 # number of electrons found
 e_total = 0  # number of electrons localble
 
@@ -104,6 +106,7 @@ for idx in signals.index:
     
     q = quality(t, e_signal, e_signal_calc)
     r.append(q._relativeError(model_GT.tau, model.tau)*100)
+    e_mse.append(q.mse())
     
     e_correct = q.isElectronExctracted()
     e_total += 1
@@ -111,5 +114,6 @@ for idx in signals.index:
     
     
 print("Mean relative error: {0}%".format(np.mean(r))) # 5% of relative error --> perfect
+print("MSE: {0}".format(np.mean(e_mse))) # 3.583
 print('Ratio e locable found: {0}%'.format(e_found / e_total * 100)) # 72% localized --> not bad
 print('Ratio e total found: {0}%'.format(e_found / signals.shape[0] * 100)) # 32%...
