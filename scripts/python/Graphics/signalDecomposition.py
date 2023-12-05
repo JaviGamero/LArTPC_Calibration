@@ -84,9 +84,9 @@ for folder in os.listdir(ROOT):
                     hist_mu = np.histogram(signal_mu, 1000, [0,10000])[0]
                     t = np.arange(0,10000,10)
                     
-                    fig, axs = plt.subplots(1,2,figsize=(10,6))
                     plt.rcParams['font.size'] = str(16)   
-                    axs[0].set_title(r'$\Delta$t = 10(ns), , bins=1000')
+                    fig, axs = plt.subplots(1,2,figsize=(10,6))
+                    axs[0].set_title(r'$\Delta$t = 10(ns), bins=1000')
                     axs[0].plot(t, hist_e+hist_mu, label = 'Total', color='g')
                     axs[0].set_xlabel("Time, t (ns)")
                     axs[0].set_ylabel(r"#Photons/$\Delta$t")
